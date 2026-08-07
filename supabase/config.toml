@@ -5,6 +5,10 @@
 id = "kc-backend"
 name = "kc-backend"
 
+# 生产环境配置 - 关联实际 Supabase 项目
+[remotes.live]
+project_id = "gzryvfrzkfpwayfybnkp"
+
 [api]
 enabled = true
 port = 54321
