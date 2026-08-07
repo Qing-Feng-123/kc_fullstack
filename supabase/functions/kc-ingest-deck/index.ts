@@ -72,13 +72,13 @@ serve(async (req) => {
             raw_data: rawData
         };
 
-        // 6. 写入数据库
-        const { error: insertError } = await supabase
+        // 6. UPSERT：同一用户同一舰队只保留最新数据
+        const { error: upsertError } = await supabase
             .from("deck_raw")
-            .insert(deckData);
+            .upsert(deckData, { onConflict: "user_id,api_id" });
 
-        if (insertError) {
-            return new Response(JSON.stringify({ error: insertError.message }), {
+        if (upsertError) {
+            return new Response(JSON.stringify({ error: upsertError.message }), {
                 status: 500,
                 headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
             });
