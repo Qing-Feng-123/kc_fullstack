@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         舰C拦截测试-本地验证版
 // @namespace    http://tampermonkey.net/
-// @version      1.3.1
+// @version      1.03
 // @description  拦截舰C数据并推送到Supabase后端
 // @author       Qing-Feng
 // @match        https://osapi.dmm.com/*
@@ -48,7 +48,7 @@
         `;
         panel.innerHTML = `
             <div style="color:#fff;font-weight:bold;font-size:13px;margin-bottom:6px;">
-                🐵 舰C拦截测试 v1.3.1
+                🐵 script1.03
             </div>
             <div style="color:#888;margin-bottom:6px;">
                 状态: <span id="kc-status" style="color:#ffd700;">等待游戏请求...</span>
@@ -289,7 +289,7 @@
     }
 
     createPanel();
-    addLog('<span style="color:#ffd700;">脚本已激活 v1.3.1，等待舰C请求...</span>');
+    addLog('<span style="color:#ffd700;">脚本已激活 script1.03，等待舰C请求...</span>');
     if (CONFIG.API_KEY === 'YOUR_API_KEY_HERE') {
         addLog('<span style="color:#ff4444;">⚠️ 请先配置 API_KEY</span>');
     }
