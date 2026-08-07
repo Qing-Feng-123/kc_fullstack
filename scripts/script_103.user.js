@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         舰C拦截测试-本地验证版
 // @namespace    http://tampermonkey.net/
-// @version      1.03
+// @version      1.04
 // @description  拦截舰C数据并推送到Supabase后端
 // @author       Qing-Feng
 // @match        https://osapi.dmm.com/*
 // @match        https://www.dmm.com/*
+// @match        https://play.games.dmm.com/*
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
@@ -16,14 +17,14 @@
     // ==================== 配置区域 ====================
     const CONFIG = {
         SUPABASE_URL: 'https://gzryvfrzkfpwayfybnkp.supabase.co',
-        API_KEY: 'kc_qingfeng_20260807',  // 在users表中创建的api_key
-        ENABLE_PUSH: true               // 是否启用推送
+        API_KEY: 'kc_qingfeng_20260807',
+        ENABLE_PUSH: true
     };
     // ==================================================
 
     let panel = null;
     let logCount = 0;
-    let detectedApis = new Set();  // 记录检测到的API
+    let detectedApis = new Set();
 
     function createPanel() {
         if (panel) return;
@@ -33,8 +34,8 @@
             position: fixed !important;
             bottom: 10px !important;
             right: 10px !important;
-            width: 340px !important;
-            max-height: 350px !important;
+            width: 360px !important;
+            max-height: 400px !important;
             background: rgba(0, 0, 0, 0.9) !important;
             color: #00ff41 !important;
             font-family: monospace !important;
@@ -48,7 +49,7 @@
         `;
         panel.innerHTML = `
             <div style="color:#fff;font-weight:bold;font-size:13px;margin-bottom:6px;">
-                🐵 script1.03
+                🐵 script1.04
             </div>
             <div style="color:#888;margin-bottom:6px;">
                 状态: <span id="kc-status" style="color:#ffd700;">等待游戏请求...</span>
@@ -132,7 +133,6 @@
         }
     }
 
-    // 推送 deck 数据
     async function pushDeck(data) {
         const result = await pushToSupabase('kc-ingest-deck', data);
         if (result.success) {
@@ -144,7 +144,6 @@
         }
     }
 
-    // 推送 ship2 数据
     async function pushShip2(data) {
         const result = await pushToSupabase('kc-ingest-ship2', data);
         if (result.success) {
@@ -155,56 +154,51 @@
             addLog(`<span style="color:#ff4444;">❌ ship2 同步失败: ${result.error}</span>`);
         }
     }
-    // ==========================================================
 
-    // ==================== 提取API名称 ====================
+    // ==================== API名称提取 ====================
     function extractApiName(url) {
         try {
             const urlObj = new URL(url);
             const path = urlObj.pathname;
+            const parts = path.split('/').filter(p => p && p !== 'kcsapi');
 
-            // 尝试从路径中提取API名称
-            // 例如: /kcsapi/api_get_member/deck → deck
-            // 例如: /kcsapi/api_port/port → port
-            const parts = path.split('/');
-
-            // 过滤掉空字符串和kcsapi
-            const filtered = parts.filter(p => p && p !== 'kcsapi');
-
-            if (filtered.length >= 2) {
-                // 最后两个部分组合: api_get_member/deck → api_get_member_deck
-                return filtered.slice(-2).join('_');
-            } else if (filtered.length === 1) {
-                return filtered[0];
+            if (parts.length >= 2) {
+                return parts.slice(-2).join('_');
+            } else if (parts.length === 1) {
+                return parts[0];
             }
 
-            // 备用: 从查询参数找
             const searchParams = urlObj.searchParams;
             if (searchParams.has('api')) {
                 return searchParams.get('api');
             }
 
-            return path;
+            return path || 'unknown';
         } catch (e) {
-            // 如果URL解析失败，尝试字符串分割
             const parts = url.split('/');
-            const lastPart = parts[parts.length - 1];
-            return lastPart.split('?')[0] || 'unknown';
+            return parts[parts.length - 1].split('?')[0] || 'unknown';
         }
     }
-    // ==================================================
 
+    // ==================== 核心拦截逻辑 ====================
+
+    // 1. 拦截标准的 XMLHttpRequest
     const OriginalXHR = window.XMLHttpRequest;
-
     function FakeXHR() {
         const xhr = new OriginalXHR();
         const self = this;
+        let requestUrl = '';
+
+        // 拦截 open 方法获取 URL
+        const originalOpen = xhr.open;
+        xhr.open = function(method, url, ...args) {
+            requestUrl = url;
+            return originalOpen.apply(this, [method, url, ...args]);
+        };
 
         xhr.addEventListener('load', function() {
             try {
-                const url = xhr.responseURL || '';
-
-                // 只拦截包含 kcsapi 的请求
+                const url = requestUrl || xhr.responseURL || '';
                 if (!url.includes('kcsapi')) return;
 
                 const apiName = extractApiName(url);
@@ -221,9 +215,8 @@
                     preview = '(无法读取)';
                 }
 
-                addLog(`<span style="color:#00ff41;">拦截成功</span><br>API: <span style="color:#fff;">${apiName}</span><br>预览: ${preview}...`);
+                addLog(`<span style="color:#00ff41;">[XHR] 拦截</span> ${apiName}<br>预览: ${preview}...`);
 
-                // 推送数据到 Supabase
                 if (responseData && responseData.api_data) {
                     if (apiName.includes('deck')) {
                         pushDeck(responseData.api_data);
@@ -231,13 +224,14 @@
                         pushShip2(responseData.api_data);
                     }
                 }
-            } catch (e) {
-                console.error('XHR拦截错误:', e);
-            }
+            } catch (e) {}
         });
 
         return new Proxy(xhr, {
             get(target, prop) {
+                if (prop === 'open') {
+                    return xhr.open.bind(xhr);
+                }
                 if (typeof target[prop] === 'function') {
                     return target[prop].bind(target);
                 }
@@ -250,31 +244,69 @@
             }
         });
     }
-
     window.XMLHttpRequest = FakeXHR;
 
+    // 2. 拦截 fetch
     if (window.fetch) {
         const originalFetch = window.fetch;
         window.fetch = async function(...args) {
+            const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+
             const response = await originalFetch.apply(this, args);
-            const url = typeof args[0] === 'string' ? args[0] : '';
 
-            // 只拦截包含 kcsapi 的请求
-            if (!url.includes('kcsapi')) return response;
-
-            try {
-                const apiName = extractApiName(url);
-                detectedApis.add(apiName);
-                updateDetectedApis();
-
-                const clone = response.clone();
-                const text = await clone.text();
-                addLog(`<span style="color:#00ff41;">[fetch] 拦截</span> ${apiName}`);
-
-                // 尝试解析并推送
+            if (url.includes('kcsapi')) {
                 try {
-                    const data = JSON.parse(text);
-                    if (data.api_data) {
+                    const apiName = extractApiName(url);
+                    detectedApis.add(apiName);
+                    updateDetectedApis();
+
+                    const clone = response.clone();
+                    const text = await clone.text();
+                    addLog(`<span style="color:#00ff41;">[fetch] 拦截</span> ${apiName}`);
+
+                    try {
+                        const data = JSON.parse(text);
+                        if (data.api_data) {
+                            if (apiName.includes('deck')) {
+                                pushDeck(data.api_data);
+                            } else if (apiName.includes('ship2')) {
+                                pushShip2(data.api_data);
+                            }
+                        }
+                    } catch(e) {}
+                } catch(e) {}
+            }
+
+            return response;
+        };
+    }
+
+    // 3. 拦截 gadgets_makeRequest（DMM游戏常用）
+    if (window.gadgets && window.gadgets.makeRequest) {
+        const originalMakeRequest = window.gadgets.makeRequest;
+        window.gadgets.makeRequest = function(url, callback, params) {
+            const apiName = extractApiName(url);
+            detectedApis.add(`gadgets_${apiName}`);
+            updateDetectedApis();
+
+            addLog(`<span style="color:#ffd700;">[gadgets] 请求</span> ${apiName}`);
+
+            // 包装回调以捕获响应
+            const wrappedCallback = function(response) {
+                try {
+                    addLog(`<span style="color:#00ff41;">[gadgets] 响应</span> ${apiName}`);
+
+                    let data = null;
+                    try {
+                        // gadgets 响应可能是 JSON 字符串或对象
+                        if (typeof response === 'string') {
+                            data = JSON.parse(response);
+                        } else {
+                            data = response;
+                        }
+                    } catch(e) {}
+
+                    if (data && data.api_data) {
                         if (apiName.includes('deck')) {
                             pushDeck(data.api_data);
                         } else if (apiName.includes('ship2')) {
@@ -282,14 +314,61 @@
                         }
                     }
                 } catch(e) {}
-            } catch(e) {}
 
-            return response;
+                if (callback) callback(response);
+            };
+
+            return originalMakeRequest.call(this, url, wrappedCallback, params);
         };
+        addLog('<span style="color:#00ff41;">✅ gadgets.makeRequest 已拦截</span>');
+    }
+
+    // 4. 拦截 DMM 的通用 API 请求
+    const dmmApis = [
+        'window.__DMM_API__',
+        'window.dmmAPI',
+        'window.API',
+        'window.gameAPI'
+    ];
+
+    dmmApis.forEach(apiName => {
+        try {
+            const parts = apiName.split('.');
+            let obj = window;
+            for (let i = 1; i < parts.length - 1; i++) {
+                obj = obj[parts[i]];
+            }
+            // 如果存在，尝试拦截
+        } catch(e) {}
+    });
+
+    // 5. 全局网络请求监听（MutationObserver 检测 iframe）
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.tagName === 'IFRAME') {
+                    try {
+                        const iframeUrl = node.src || '';
+                        if (iframeUrl.includes('kcsapi') || iframeUrl.includes('dmm')) {
+                            addLog(`<span style="color:#ffd700;">[iframe] 加载</span> ${iframeUrl.substring(0, 50)}...`);
+                        }
+                    } catch(e) {}
+                }
+            });
+        });
+    });
+
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
     }
 
     createPanel();
-    addLog('<span style="color:#ffd700;">脚本已激活 script1.03，等待舰C请求...</span>');
+    addLog('<span style="color:#ffd700;">脚本已激活 script1.04，等待舰C请求...</span>');
+    addLog('<span style="color:#888;">已启用: XHR + fetch + gadgets 拦截</span>');
     if (CONFIG.API_KEY === 'YOUR_API_KEY_HERE') {
         addLog('<span style="color:#ff4444;">⚠️ 请先配置 API_KEY</span>');
     }
