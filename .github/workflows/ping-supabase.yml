@@ -1,0 +1,14 @@
+name: Ping Supabase
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 0 点执行
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Edge Function
+        run: |
+          curl -s "https://YOUR_PROJECT.supabase.co/functions/v1/kc-query-fleet?fleet_no=1"             -H "Authorization: Bearer YOUR_API_KEY"             -o /dev/null -w "%{http_code}"

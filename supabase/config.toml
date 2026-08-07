@@ -1,0 +1,28 @@
+# Supabase 配置文件
+# 此文件告诉 Supabase 要部署哪些资源
+
+[project]
+id = "kc-backend"
+name = "kc-backend"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+# Edge Functions 配置
+[functions.kc-ingest-deck]
+verify_jwt = false
+
+[functions.kc-ingest-ship2]
+verify_jwt = false
+
+[functions.kc-query-fleet]
+verify_jwt = false

@@ -1,0 +1,68 @@
+-- 创建 ship2_raw 表（舰船详细原始数据）
+create table if not exists public.ship2_raw (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references public.users(id) on delete cascade,
+    api_id int4 not null,
+    api_sortno int4,
+    api_ship_id int4,
+    api_lv int2,
+    api_exp int8,
+    api_nowhp int2,
+    api_maxhp int2,
+    api_soku int2,
+    api_leng int2,
+    api_slot_0 int4,
+    api_slot_1 int4,
+    api_slot_2 int4,
+    api_slot_3 int4,
+    api_slot_4 int4,
+    api_onslot_0 int2,
+    api_onslot_1 int2,
+    api_onslot_2 int2,
+    api_onslot_3 int2,
+    api_onslot_4 int2,
+    api_kyouka_0 int2,
+    api_kyouka_1 int2,
+    api_kyouka_2 int2,
+    api_kyouka_3 int2,
+    api_kyouka_4 int2,
+    api_kyouka_5 int2,
+    api_backs int2,
+    api_fuel int2,
+    api_bull int2,
+    api_slotnum int2,
+    api_ndock_time int8,
+    api_ndock_item_0 int4,
+    api_ndock_item_1 int4,
+    api_srate int2,
+    api_cond int2,
+    api_karyoku_0 int2,
+    api_karyoku_1 int2,
+    api_raisou_0 int2,
+    api_raisou_1 int2,
+    api_taiku_0 int2,
+    api_taiku_1 int2,
+    api_soukou_0 int2,
+    api_soukou_1 int2,
+    api_kaihi_0 int2,
+    api_kaihi_1 int2,
+    api_taisen_0 int2,
+    api_taisen_1 int2,
+    api_sakuteki_0 int2,
+    api_sakuteki_1 int2,
+    api_lucky_0 int2,
+    api_lucky_1 int2,
+    api_locked int2,
+    api_locked_equip int2,
+    api_sally_area int2,
+    raw_data jsonb not null,
+    created_at timestamptz default now()
+);
+
+-- 索引加速查询
+create index if not exists idx_ship2_raw_user_ship 
+    on public.ship2_raw(user_id, api_id);
+create index if not exists idx_ship2_raw_user_created 
+    on public.ship2_raw(user_id, created_at desc);
+
+comment on table public.ship2_raw is 'api_get_member/ship2 原始数据';
