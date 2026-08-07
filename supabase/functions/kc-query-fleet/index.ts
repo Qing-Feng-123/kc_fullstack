@@ -1,4 +1,4 @@
-// Edge Function: 查询舰队数据（联合查询 deck_raw + ship2_raw）
+// Edge Function: 查询舰队数据（联合查询 deck_raw + ship2_raw + ship_master）
 // 路径: GET /functions/v1/kc-query-fleet?fleet_no=1
 // 请求头: Authorization: Bearer <API_KEY>
 
@@ -67,7 +67,7 @@ serve(async (req) => {
             (id) => id !== null && id !== undefined && id !== -1 && id !== 0
         );
 
-        // 5. 查舰船数据（ship2_raw 全字段）
+        // 5. 查舰船数据（ship2_raw 全字段）+ 图鉴对照（ship_master）
         let ships: unknown[] = [];
         if (validIds.length > 0) {
             const { data: shipRows, error: shipError } = await supabase
@@ -77,9 +77,28 @@ serve(async (req) => {
                 .in("api_id", validIds);
             if (shipError) return json({ error: shipError.message }, 500);
 
-            // 6. 按舰队编成顺序排序
+            // 5.5 图鉴对照：api_ship_id → 舰名
+            const typeIds = [...new Set((shipRows || []).map((s) => s.api_ship_id))];
+            const { data: masters } = await supabase
+                .from("ship_master")
+                .select("api_ship_id, api_name, api_name_cn, api_stype_name")
+                .in("api_ship_id", typeIds);
+            const mst = new Map((masters || []).map((m) => [m.api_ship_id, m]));
+
+            // 6. 按舰队编成顺序排序并合并舰名
             const byId = new Map((shipRows || []).map((s) => [s.api_id, s]));
-            ships = validIds.map((id) => byId.get(id)).filter(Boolean);
+            ships = validIds
+                .map((id) => byId.get(id))
+                .filter(Boolean)
+                .map((s) => {
+                    const m = mst.get(s.api_ship_id);
+                    return {
+                        ...s,
+                        api_name: m?.api_name ?? null,
+                        api_name_cn: m?.api_name_cn ?? null,
+                        api_stype_name: m?.api_stype_name ?? null
+                    };
+                });
         }
 
         // 7. 返回
