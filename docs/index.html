@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聯合艦隊司令部 — 艦隊戦力報告</title>
+<style>
+:root {
+  --navy-0: #070d18;
+  --navy-1: #0b1424;
+  --navy-2: #111e33;
+  --navy-3: #1a2c47;
+  --brass: #c9a227;
+  --brass-hi: #e8c95a;
+  --brass-dim: #8a742a;
+  --crimson: #9e1b1b;
+  --crimson-hi: #c43d3d;
+  --ivory: #e6ddc4;
+  --ivory-dim: #a99f83;
+  --ink: #d8cfb4;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Noto Serif SC", "Noto Serif JP", "Songti SC", "SimSun", serif;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(158,27,27,0.12), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px),
+    var(--navy-0);
+  min-height: 100vh;
+  color: var(--ink);
+  padding: 24px 16px 48px;
+}
+
+/* ============ 司令部抬头 ============ */
+.header {
+  position: relative; text-align: center; margin: 0 auto 28px;
+  max-width: 900px; padding: 28px 20px 22px;
+  border: 1px solid var(--brass-dim);
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 50% 130%, rgba(158,27,27,0.22), transparent 60%),
+    linear-gradient(180deg, var(--navy-2), var(--navy-1));
+  box-shadow: 0 0 0 4px var(--navy-0), 0 0 0 5px var(--brass-dim), 0 12px 40px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.header::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-conic-gradient(from -90deg at 50% 135%, rgba(201,162,39,0.05) 0deg 6deg, transparent 6deg 12deg);
+}
+.header-anchor { width: 44px; height: 44px; margin-bottom: 6px; filter: drop-shadow(0 0 6px rgba(201,162,39,0.5)); }
+.header h1 {
+  color: var(--brass-hi); font-size: clamp(24px, 5vw, 36px);
+  letter-spacing: 0.35em; text-indent: 0.35em; font-weight: 700;
+  text-shadow: 0 2px 12px rgba(201,162,39,0.35);
+}
+.header .sub {
+  color: var(--ivory-dim); font-size: 13px; letter-spacing: 0.5em; text-indent: 0.5em;
+  margin-top: 8px;
+}
+.header .rule {
+  width: 70%; height: 1px; margin: 14px auto 0;
+  background: linear-gradient(90deg, transparent, var(--brass), transparent);
+}
+.stamp {
+  position: absolute; top: 16px; right: 18px;
+  width: 54px; height: 54px; border: 2px solid var(--crimson-hi);
+  border-radius: 6px; color: var(--crimson-hi);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; writing-mode: vertical-rl;
+  letter-spacing: 2px; transform: rotate(6deg); opacity: 0.85;
+  text-shadow: 0 0 8px rgba(196,61,61,0.4);
+}
+.updated-tag {
+  margin-top: 10px; font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.2em;
+}
+
+/* ============ 舰队 tabs ============ */
+.fleet-tabs {
+  display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap;
+}
+.fleet-tab {
+  padding: 10px 22px; cursor: pointer; user-select: none;
+  background: var(--navy-1); color: var(--ivory-dim);
+  border: 1px solid var(--navy-3);
+  font-family: inherit; font-size: 15px; letter-spacing: 0.15em;
+  transition: all 0.25s; position: relative;
+}
+.fleet-tab::before, .fleet-tab::after {
+  content: "◆"; position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 8px; color: var(--brass-dim); opacity: 0; transition: opacity 0.25s;
+}
+.fleet-tab::before { left: 8px; } .fleet-tab::after { right: 8px; }
+.fleet-tab.active {
+  background: linear-gradient(180deg, #2a2040, var(--navy-2));
+  border-color: var(--brass); color: var(--brass-hi);
+  box-shadow: 0 0 14px rgba(201,162,39,0.25), inset 0 0 12px rgba(201,162,39,0.08);
+}
+.fleet-tab.active::before, .fleet-tab.active::after { opacity: 1; }
+.fleet-tab:hover:not(.active) { border-color: var(--crimson-hi); color: var(--ivory); }
+
+/* ============ 布局与卡片 ============ */
+.main-grid {
+  display: grid; grid-template-columns: 5fr 6fr; gap: 22px;
+  max-width: 1180px; margin: 0 auto;
+}
+@media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: linear-gradient(180deg, var(--navy-1), var(--navy-2));
+  border: 1px solid var(--navy-3);
+  padding: 20px; position: relative;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+}
+.card::before {
+  content: ""; position: absolute; inset: 4px; pointer-events: none;
+  border: 1px solid rgba(201,162,39,0.18);
+}
+.card-title {
+  color: var(--brass); font-size: 16px; letter-spacing: 0.3em;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--navy-3);
+  display: flex; align-items: center; gap: 10px;
+}
+.card-title .bar { width: 4px; height: 16px; background: var(--crimson); box-shadow: 0 0 8px rgba(158,27,27,0.6); }
+
+/* ============ 舰娘列表 ============ */
+.ship-list { display: flex; flex-direction: column; gap: 10px; }
+.ship-item {
+  display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px;
+  padding: 10px 12px; cursor: pointer;
+  background: rgba(26,44,71,0.45); border: 1px solid transparent; border-left: 3px solid var(--brass-dim);
+  transition: all 0.2s;
+}
+.ship-item:hover { background: rgba(26,44,71,0.8); border-left-color: var(--crimson-hi); }
+.ship-item.selected { border-color: var(--brass); border-left-color: var(--brass); background: rgba(201,162,39,0.08); }
+.ship-pos {
+  width: 38px; height: 38px; border: 1px solid var(--brass-dim); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--brass); font-size: 15px; font-weight: 700;
+  background: radial-gradient(circle, rgba(201,162,39,0.12), transparent 70%);
+}
+.ship-item.selected .ship-pos { background: var(--brass); color: var(--navy-0); }
+.ship-name { font-weight: 700; color: var(--ivory); font-size: 15px; letter-spacing: 0.05em; }
+.ship-meta { font-size: 11px; color: var(--ivory-dim); margin-top: 3px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.hp-bar { width: 90px; height: 5px; background: #0a1220; border: 1px solid var(--navy-3); }
+.hp-fill { height: 100%; background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+.hp-fill.hurt { background: linear-gradient(90deg, #b28704, #e0b93c); }
+.hp-fill.crit { background: linear-gradient(90deg, #8b1a1a, #c43d3d); }
+.ship-right { text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.ship-lv { color: var(--brass-hi); font-weight: 700; font-size: 14px; letter-spacing: 0.05em; }
+.cond-badge {
+  display: inline-block; padding: 1px 10px; font-size: 11px; letter-spacing: 0.1em;
+  border: 1px solid;
+}
+.cond-sparkle { color: var(--brass-hi); border-color: var(--brass); background: rgba(201,162,39,0.15); }
+.cond-green { color: #7cc47f; border-color: #3f6b41; background: rgba(60,120,60,0.12); }
+.cond-normal { color: var(--ivory-dim); border-color: var(--navy-3); }
+.cond-orange { color: #e0a13c; border-color: #8a5c14; background: rgba(180,120,30,0.12); }
+.cond-red { color: var(--crimson-hi); border-color: var(--crimson); background: rgba(158,27,27,0.18); }
+
+/* ============ 详情 / 雷达图 ============ */
+.radar-container { display: flex; justify-content: center; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+@media (max-width: 480px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-box {
+  background: rgba(26,44,71,0.5); padding: 9px 6px; text-align: center;
+  border-top: 2px solid var(--brass-dim);
+}
+.stat-label { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.2em; }
+.stat-value { font-size: 20px; font-weight: 700; color: var(--ivory); margin-top: 3px; }
+.stat-max { font-size: 10px; color: var(--brass-dim); }
+.modernized { color: #7cc47f; }
+
+.dossier {
+  margin-top: 16px; padding: 12px 14px;
+  background: rgba(26,44,71,0.4); border: 1px dashed var(--brass-dim);
+  font-size: 12px; color: var(--ivory-dim); line-height: 2;
+}
+.dossier b { color: var(--ivory); font-weight: 600; }
+.equip-row { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.equip-slot {
+  min-width: 46px; height: 40px; padding: 0 6px;
+  border: 1px solid var(--navy-3); background: var(--navy-0);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 10px; color: #566;
+}
+.equip-slot.filled { border-color: var(--brass-dim); color: var(--brass); }
+.equip-slot .cap { font-size: 9px; color: var(--ivory-dim); }
+
+.empty-slot { text-align: center; padding: 48px 20px; color: #4a5568; font-style: italic; letter-spacing: 0.2em; }
+
+/* ============ 舰队总览 ============ */
+.bottom-card { max-width: 1180px; margin: 22px auto 0; }
+.fleet-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.summary-item {
+  background: rgba(26,44,71,0.45); padding: 13px 8px; text-align: center;
+  border-bottom: 2px solid var(--crimson);
+}
+.summary-label { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.15em; }
+.summary-value { font-size: 21px; font-weight: 700; color: var(--brass-hi); margin-top: 5px; }
+
+/* ============ 控制条 ============ */
+.ctrl-bar {
+  max-width: 1180px; margin: 0 auto 22px; display: flex; gap: 10px;
+  justify-content: flex-end; align-items: center; flex-wrap: wrap;
+}
+.ctrl-btn {
+  font-family: inherit; cursor: pointer; font-size: 12px; letter-spacing: 0.2em;
+  padding: 7px 18px; background: var(--navy-1); color: var(--brass);
+  border: 1px solid var(--brass-dim); transition: all 0.2s;
+}
+.ctrl-btn:hover { background: rgba(201,162,39,0.12); border-color: var(--brass); }
+.status-line { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.1em; }
+.status-line.err { color: var(--crimson-hi); }
+
+.footer {
+  text-align: center; margin-top: 36px; font-size: 11px; color: #3d4a5e;
+  letter-spacing: 0.3em;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="stamp">軍機</div>
+  <svg class="header-anchor" viewBox="0 0 48 48" fill="none" stroke="#c9a227" stroke-width="2.4" stroke-linecap="round">
+    <circle cx="24" cy="8" r="4.5"/>
+    <line x1="24" y1="12.5" x2="24" y2="40"/>
+    <line x1="13" y1="19" x2="35" y2="19"/>
+    <path d="M8 30 C8 40 16 44 24 40 C32 44 40 40 40 30"/>
+    <path d="M8 30 L5 26 M8 30 L12 27 M40 30 L43 26 M40 30 L36 27"/>
+  </svg>
+  <h1>聯合艦隊司令部</h1>
+  <div class="sub">作戦室 ― 艦隊戦力報告 ―</div>
+  <div class="rule"></div>
+  <div class="updated-tag" id="updatedTag"> awaiting telegram… </div>
+</div>
+
+<div class="ctrl-bar">
+  <span class="status-line" id="statusLine"></span>
+  <button class="ctrl-btn" id="btnRefresh">⟳ 電文受信</button>
+</div>
+
+<div class="fleet-tabs" id="fleetTabs">
+  <button class="fleet-tab active" data-fleet="1">第一艦隊</button>
+  <button class="fleet-tab" data-fleet="2">第二艦隊</button>
+  <button class="fleet-tab" data-fleet="3">第三艦隊</button>
+  <button class="fleet-tab" data-fleet="4">第四艦隊</button>
+</div>
+
+<div class="main-grid">
+  <div class="card">
+    <div class="card-title"><span class="bar"></span>艦 隊 編 成</div>
+    <div class="ship-list" id="shipList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="bar"></span>艦 艇 戦 歴 表</div>
+    <div id="shipDetail">
+      <div class="empty-slot">― 左の艦艇を選択せよ ―</div>
+    </div>
+  </div>
+</div>
+
+<div class="card bottom-card">
+  <div class="card-title"><span class="bar"></span>艦 隊 総 合 戦 力</div>
+  <div class="fleet-summary" id="fleetSummary"></div>
+</div>
+
+<div class="footer">KC_FULLSTACK ― SUPABASE 中継 ― 機密保持ヲ厳守セヨ</div>
+
+<script>
+// ================= 配置 =================
+const CONFIG = {
+  API_BASE: 'https://gzryvfrzkfpwayfybnkp.supabase.co/functions/v1/kc-query-fleet',
+  API_KEY: localStorage.getItem('kc_api_key') || 'kc_qingfeng_20260807_abc123'
+};
+
+// ================= 状态 =================
+let currentFleet = 1;
+let selectedShipId = null;
+let fleetCache = {};   // fleet_no -> api响应
+let shipNameMap = {};  // api_id -> 自定义名（可选，localStorage）
+try { shipNameMap = JSON.parse(localStorage.getItem('kc_ship_names') || '{}'); } catch(e) {}
+
+// ================= 工具 =================
+const $ = id => document.getElementById(id);
+const posName = ['旗艦','二番','三番','四番','五番','六番'];
+
+function condClass(c) {
+  if (c >= 50) return 'cond-sparkle';
+  if (c >= 40) return 'cond-green';
+  if (c >= 30) return 'cond-normal';
+  if (c >= 20) return 'cond-orange';
+  return 'cond-red';
+}
+function condText(c) {
+  if (c >= 50) return '戦意高揚';
+  if (c >= 40) return '士気良好';
+  if (c >= 30) return '通常';
+  if (c >= 20) return '士気低下';
+  return '疲労';
+}
+function hpClass(now, max) {
+  const r = now / max;
+  if (r <= 0.25) return 'crit';
+  if (r <= 0.5) return 'hurt';
+  return '';
+}
+function shipDisplayName(s) {
+  if (shipNameMap[s.api_id]) return shipNameMap[s.api_id];
+  if (s.api_name) {
+    return s.api_name_cn && s.api_name_cn !== s.api_name
+      ? `${s.api_name}（${s.api_name_cn}）`
+      : s.api_name;
+  }
+  return `図鑑No.${s.api_sortno ?? '?'} （ID:${s.api_id}）`;
+}
+// 速度/射程
+const SOKU = {0:'陆上基地',5:'低速',10:'高速',15:'高速+',20:'最速'};
+const LENG = {1:'短',2:'中',3:'长',4:'超长',5:'超超长'};
+
+// ================= 数据获取 =================
+async function fetchFleet(no, force = false) {
+  if (fleetCache[no] && !force) return fleetCache[no];
+  const res = await fetch(`${CONFIG.API_BASE}?fleet_no=${no}`, {
+    headers: { 'Authorization': 'Bearer ' + CONFIG.API_KEY }
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status} ${t.slice(0, 120)}`);
+  }
+  const data = await res.json();
+  fleetCache[no] = data;
+  return data;
+}
+
+function setStatus(msg, isErr = false) {
+  const el = $('statusLine');
+  el.textContent = msg;
+  el.className = 'status-line' + (isErr ? ' err' : '');
+}
+
+async function loadFleet(no, force = false) {
+  setStatus('電文受信中…');
+  try {
+    const data = await fetchFleet(no, force);
+    setStatus('');
+    if (data.updated_at) {
+      $('updatedTag').textContent =
+        '最終電文受信：' + new Date(data.updated_at).toLocaleString('zh-CN', { hour12: false });
+    }
+    selectedShipId = null;
+    $('shipDetail').innerHTML = '<div class="empty-slot">― 左の艦艇を選択せよ ―</div>';
+    renderShipList(data);
+    renderFleetSummary(data);
+    if (data.ships && data.ships.length > 0) {
+      selectShip(data.ships[0].api_id);
+    }
+  } catch (e) {
+    setStatus('受信失敗: ' + e.message, true);
+    $('shipList').innerHTML = '<div class="empty-slot">電文受信失敗<br>通信状態を確認せよ</div>';
+    $('fleetSummary').innerHTML = '';
+  }
+}
+
+// ================= 渲染：编成列表 =================
+function renderShipList(data) {
+  const ships = data.ships || [];
+  if (ships.length === 0) {
+    $('shipList').innerHTML = '<div class="empty-slot">― 編成データ無シ ―</div>';
+    return;
+  }
+  $('shipList').innerHTML = ships.map((s, i) => `
+    <div class="ship-item ${selectedShipId === s.api_id ? 'selected' : ''}" data-ship="${s.api_id}">
+      <div class="ship-pos">${i + 1}</div>
+      <div>
+        <div class="ship-name">${shipDisplayName(s)}</div>
+        <div class="ship-meta">
+          <span>${posName[i] || ''}艦</span>
+          ${s.api_stype_name ? `<span>${s.api_stype_name}</span>` : ''}
+          <span class="hp-bar"><span class="hp-fill ${hpClass(s.api_nowhp, s.api_maxhp)}" style="display:block;width:${Math.round(100 * s.api_nowhp / s.api_maxhp)}%"></span></span>
+          <span>HP ${s.api_nowhp}/${s.api_maxhp}</span>
+          ${s.api_locked ? '<span>🔒</span>' : ''}
+        </div>
+      </div>
+      <div class="ship-right">
+        <div class="ship-lv">Lv.${s.api_lv}</div>
+        <span class="cond-badge ${condClass(s.api_cond)}">${condText(s.api_cond)} ${s.api_cond}</span>
+      </div>
+    </div>
+  `).join('');
+
+  $('shipList').querySelectorAll('.ship-item').forEach(item => {
+    item.addEventListener('click', () => selectShip(parseInt(item.dataset.ship)));
+  });
+}
+
+function selectShip(id) {
+  selectedShipId = id;
+  const data = fleetCache[currentFleet];
+  $('shipList').querySelectorAll('.ship-item').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.ship) === id);
+  });
+  const ship = (data.ships || []).find(s => s.api_id === id);
+  if (ship) renderShipDetail(ship);
+}
+
+// ================= 雷达图 =================
+function drawRadar(s) {
+  const stats = [
+    ['火力', s.api_karyoku_0, s.api_karyoku_1],
+    ['雷装', s.api_raisou_0, s.api_raisou_1],
+    ['対空', s.api_taiku_0, s.api_taiku_1],
+    ['装甲', s.api_soukou_0, s.api_soukou_1],
+    ['回避', s.api_kaihi_0, s.api_kaihi_1],
+    ['対潜', s.api_taisen_0, s.api_taisen_1],
+    ['索敵', s.api_sakuteki_0, s.api_sakuteki_1],
+    ['運',   s.api_lucky_0, s.api_lucky_1]
+  ].map(([name, v, m]) => ({ name, v: v ?? 0, m: m || 100 }));
+
+  const size = 290, c = size / 2, R = 92, step = Math.PI * 2 / 8;
+  const pt = (j, r) => {
+    const a = j * step - Math.PI / 2;
+    return [c + r * Math.cos(a), c + r * Math.sin(a)];
+  };
+  let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="max-width:100%">`;
+
+  for (let i = 1; i <= 4; i++) {
+    const r = R / 4 * i;
+    let p = '';
+    for (let j = 0; j < 8; j++) { const [x, y] = pt(j, r); p += `${x},${y} `; }
+    svg += `<polygon points="${p}" fill="none" stroke="#1a2c47" stroke-width="1"/>`;
+  }
+  for (let j = 0; j < 8; j++) {
+    const [x, y] = pt(j, R);
+    svg += `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="#1a2c47"/>`;
+  }
+  let dp = '';
+  for (let j = 0; j < 8; j++) {
+    const ratio = Math.min(stats[j].v / stats[j].m, 1);
+    const [x, y] = pt(j, R * ratio); dp += `${x},${y} `;
+  }
+  svg += `<polygon points="${dp}" fill="rgba(158,27,27,0.35)" stroke="#c43d3d" stroke-width="2"/>`;
+  for (let j = 0; j < 8; j++) {
+    const st = stats[j];
+    const ratio = Math.min(st.v / st.m, 1);
+    const [x, y] = pt(j, R * ratio);
+    svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#e8c95a"/>`;
+    const [lx, ly] = pt(j, R + 20);
+    svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#a99f83" font-size="12" font-family="serif">${st.name}</text>`;
+    const [vx, vy] = pt(j, R + 34);
+    svg += `<text x="${vx}" y="${vy}" text-anchor="middle" dominant-baseline="middle" fill="#e8c95a" font-size="11" font-weight="bold">${st.v}</text>`;
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+// ================= 渲染：详情 =================
+function renderShipDetail(s) {
+  const statBox = (label, v, m, ky) => `
+    <div class="stat-box">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value">${v ?? '―'}</div>
+      <div class="stat-max">/ ${m ?? '―'} ${ky > 0 ? `<span class="modernized">改修+${ky}</span>` : ''}</div>
+    </div>`;
+
+  const slots = [s.api_slot_0, s.api_slot_1, s.api_slot_2, s.api_slot_3, s.api_slot_4].slice(0, s.api_slotnum || 5);
+  const onslots = [s.api_onslot_0, s.api_onslot_1, s.api_onslot_2, s.api_onslot_3, s.api_onslot_4];
+
+  $('shipDetail').innerHTML = `
+    <div style="text-align:center;margin-bottom:6px;">
+      <span style="color:var(--brass-hi);font-size:19px;font-weight:700;letter-spacing:0.1em">${shipDisplayName(s)}</span>
+      <span style="color:var(--ivory-dim);font-size:12px;margin-left:10px">${s.api_stype_name ? s.api_stype_name + ' ／ ' : ''}Lv.${s.api_lv} ／ ${SOKU[s.api_soku] || '―'} ／ 射程${LENG[s.api_leng] || '―'}</span>
+    </div>
+    <div class="radar-container">${drawRadar(s)}</div>
+    <div class="stats-grid">
+      ${statBox('火力', s.api_karyoku_0, s.api_karyoku_1, s.api_kyouka_0)}
+      ${statBox('雷装', s.api_raisou_0, s.api_raisou_1, s.api_kyouka_1)}
+      ${statBox('対空', s.api_taiku_0, s.api_taiku_1, s.api_kyouka_2)}
+      ${statBox('装甲', s.api_soukou_0, s.api_soukou_1, s.api_kyouka_3)}
+      ${statBox('回避', s.api_kaihi_0, s.api_kaihi_1, 0)}
+      ${statBox('対潜', s.api_taisen_0, s.api_taisen_1, s.api_kyouka_5)}
+      ${statBox('索敵', s.api_sakuteki_0, s.api_sakuteki_1, 0)}
+      ${statBox('運', s.api_lucky_0, s.api_lucky_1, s.api_kyouka_4)}
+    </div>
+    <div class="dossier">
+      <b>兵装槽</b>
+      <div class="equip-row">
+        ${slots.map((sl, i) => `
+          <div class="equip-slot ${sl > 0 ? 'filled' : ''}">
+            <span>${sl > 0 ? '装備ID:' + sl : '― 空 ―'}</span>
+            ${onslots[i] > 0 ? `<span class="cap">搭載 ${onslots[i]}</span>` : ''}
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:10px;display:flex;gap:18px;flex-wrap:wrap">
+        <span>HP <b>${s.api_nowhp}/${s.api_maxhp}</b></span>
+        <span>練度 <b>${'★'.repeat(Math.min(s.api_srate || 0, 7)) || '―'}</b></span>
+        <span>稀有度 <b>${s.api_backs ?? '―'}</b></span>
+        <span>補給 <b>油${s.api_fuel ?? '―'} / 弾${s.api_bull ?? '―'}</b></span>
+        <span>状態 <b>${s.api_locked ? '保護鎖定' : '未鎖定'}</b></span>
+      </div>
+    </div>
+  `;
+}
+
+// ================= 渲染：舰队总览 =================
+function renderFleetSummary(data) {
+  const ships = data.ships || [];
+  const sum = k => ships.reduce((a, s) => a + (s[k] || 0), 0);
+  const sparkle = ships.filter(s => s.api_cond >= 50).length;
+  const item = (l, v) => `
+    <div class="summary-item">
+      <div class="summary-label">${l}</div>
+      <div class="summary-value">${v}</div>
+    </div>`;
+  $('fleetSummary').innerHTML = ships.length === 0 ? '<div class="empty-slot">―</div>' : [
+    item('編成隻数', `${ships.length}/6`),
+    item('総火力', sum('api_karyoku_0')),
+    item('総雷装', sum('api_raisou_0')),
+    item('総対空', sum('api_taiku_0')),
+    item('総索敵', sum('api_sakuteki_0')),
+    item('総耐久', `${sum('api_nowhp')}/${sum('api_maxhp')}`),
+    item('平均士気', ships.length ? Math.round(sum('api_cond') / ships.length) : 0),
+    item('キラ艦', `${sparkle}隻`),
+    item('旗艦練度', 'Lv.' + (ships[0]?.api_lv ?? '―'))
+  ].join('');
+}
+
+// ================= 事件 =================
+$('fleetTabs').querySelectorAll('.fleet-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.fleet-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentFleet = parseInt(tab.dataset.fleet);
+    loadFleet(currentFleet);
+  });
+});
+$('btnRefresh').addEventListener('click', () => loadFleet(currentFleet, true));
+
+// ================= 启动 =================
+loadFleet(1);
+</script>
+
+</body>
+</html>

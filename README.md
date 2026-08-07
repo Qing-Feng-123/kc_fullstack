@@ -1,40 +1,54 @@
-# KC FullStack
+# kc_fullstack
 
-舰C数据拦截全栈后端项目
+舰队Collection（艦これ）游戏数据全栈面板：Tampermonkey 脚本拦截 kcsapi → Supabase Edge Functions 入库 → 聯合艦隊司令部风格前端展示。
+
+## 前端面板（GitHub Pages）
+
+**https://qing-feng-123.github.io/kc_fullstack/**
+
+聯合艦隊司令部・作戦室风格的舰队数据面板：舰队编成、舰娘八维雷达图、装备槽、舰队综合战力。
 
 ## 项目结构
 
 ```
-kc_fullstack/
-├── supabase/                    # Supabase 配置目录
-│   ├── config.toml              # Supabase 配置文件
-│   ├── migrations/              # 数据库迁移
-│   │   ├── 001_create_users.sql
-│   │   ├── 002_create_deck_raw.sql
-│   │   └── 003_create_ship2_raw.sql
-│   └── functions/               # Edge Functions
-│       ├── kc-ingest-deck/
-│       │   └── index.ts         # 接收 deck 数据
-│       ├── kc-ingest-ship2/
-│       │   └── index.ts         # 接收 ship2 数据
-│       └── kc-query-fleet/
-│           └── index.ts         # 查询舰队数据
-├── docs/                        # 文档
-│   └── api.md                   # API 接口文档
-└── .github/
-    └── workflows/
-        └── ping-supabase.yml    # 定时 ping（防暂停）
+├── docs/                  # 前端面板（GitHub Pages 源）
+│   └── index.html
+├── frontend/              # 前端源码副本
+│   └── index.html
+├── scripts/               # Tampermonkey 拦截脚本（.user.js）
+└── supabase/
+    ├── migrations/        # 数据库迁移（push 到 main 自动应用）
+    └── functions/         # Edge Functions（push 到 main 自动部署）
 ```
 
-## 部署说明
+## 数据流
 
-1. 在 Supabase 网页关联此 GitHub 仓库
-2. 推送代码后自动部署数据库迁移和 Edge Functions
-3. 在 `users` 表中插入 API Key
-4. 修改 Tampermonkey 脚本配置 Supabase URL 和 API Key
+```
+游戏客户端 --(kcsapi XHR)--> Tampermonkey 脚本拦截
+    --(POST)--> kc-ingest-deck / kc-ingest-ship2 (Edge Functions)
+    --> deck_raw / ship2_raw 表（UPSERT，只保留最新）
+前端面板 --(GET)--> kc-query-fleet?fleet_no=N
+    --(联合查询 deck_raw + ship2_raw + ship_master)--> 渲染
+```
 
-## 技术栈
+## 表结构
 
-- 后端：Supabase (PostgreSQL + Edge Functions)
-- 数据库：PostgreSQL
-- 部署：GitHub → Supabase 自动同步
+| 表 | 说明 |
+|---|---|
+| `users` | 用户与 API Key |
+| `deck_raw` | 舰队编成（user_id + api_id 唯一，覆盖更新） |
+| `ship2_raw` | 舰船数据（user_id + api_id 唯一，覆盖更新） |
+| `ship_master` | 舰船图鉴对照表（943 艘，含中日舰名、舰种） |
+
+## 部署方式
+
+push 到 `main` 分支即自动部署（Supabase GitHub 集成）：
+
+- `supabase/migrations/*.sql` → 自动应用迁移
+- `supabase/functions/*` → 自动部署 Edge Functions
+
+若偶发未触发，可用空提交重试：
+
+```bash
+git commit --allow-empty -m "trigger deploy" && git push origin main
+```
