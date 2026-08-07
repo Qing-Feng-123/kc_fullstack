@@ -1,30 +1,32 @@
-// Edge Function: 查询舰队数据
+// Edge Function: 查询舰队数据（联合查询 deck_raw + ship2_raw）
 // 路径: GET /functions/v1/kc-query-fleet?fleet_no=1
 // 请求头: Authorization: Bearer <API_KEY>
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const CORS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, content-type"
+};
+
+function json(data: unknown, status = 200) {
+    return new Response(JSON.stringify(data), {
+        status,
+        headers: { "Content-Type": "application/json", ...CORS }
+    });
+}
+
 serve(async (req) => {
     if (req.method === "OPTIONS") {
-        return new Response(null, {
-            status: 204,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, OPTIONS",
-                "Access-Control-Allow-Headers": "authorization, content-type"
-            }
-        });
+        return new Response(null, { status: 204, headers: CORS });
     }
 
     try {
+        // 1. API Key 鉴权 → user.id
         const apiKey = req.headers.get("authorization")?.replace("Bearer ", "");
-        if (!apiKey) {
-            return new Response(JSON.stringify({ error: "Missing API Key" }), {
-                status: 401,
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-            });
-        }
+        if (!apiKey) return json({ error: "Missing API Key" }, 401);
 
         const supabase = createClient(
             Deno.env.get("SUPABASE_URL")!,
@@ -36,80 +38,61 @@ serve(async (req) => {
             .select("id")
             .eq("api_key", apiKey)
             .single();
+        if (userError || !user) return json({ error: "Invalid API Key" }, 401);
 
-        if (userError || !user) {
-            return new Response(JSON.stringify({ error: "Invalid API Key" }), {
-                status: 403,
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-            });
+        // 2. fleet_no 参数校验（1-4）
+        const url = new URL(req.url);
+        const fleetNo = parseInt(url.searchParams.get("fleet_no") || "1", 10);
+        if (isNaN(fleetNo) || fleetNo < 1 || fleetNo > 4) {
+            return json({ error: "fleet_no must be 1-4" }, 400);
         }
 
-        // 获取查询参数
-        const url = new URL(req.url);
-        const fleetNo = parseInt(url.searchParams.get("fleet_no") || "1");
-
-        // 1. 获取最新 deck 数据
-        const { data: deckData, error: deckError } = await supabase
+        // 3. 查舰队编成（deck_raw，舰位为 api_ship_0..5 平铺列）
+        const { data: deck, error: deckError } = await supabase
             .from("deck_raw")
-            .select("*")
+            .select("api_id, api_name, api_ship_0, api_ship_1, api_ship_2, api_ship_3, api_ship_4, api_ship_5, created_at")
             .eq("user_id", user.id)
             .eq("api_id", fleetNo)
-            .order("created_at", { ascending: false })
-            .limit(1)
             .single();
-
-        if (deckError || !deckData) {
-            return new Response(JSON.stringify({ error: "No fleet data found" }), {
-                status: 404,
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-            });
+        if (deckError || !deck) {
+            return json({ error: `Fleet ${fleetNo} not found` }, 404);
         }
 
-        // 2. 获取舰船ID列表
-        const shipIds = [
-            deckData.api_ship_0,
-            deckData.api_ship_1,
-            deckData.api_ship_2,
-            deckData.api_ship_3,
-            deckData.api_ship_4,
-            deckData.api_ship_5
-        ].filter(id => id !== null && id !== -1);
+        // 4. 组装舰位数组并过滤无效位（空位为 -1 / null / 0）
+        const shipIds: number[] = [
+            deck.api_ship_0, deck.api_ship_1, deck.api_ship_2,
+            deck.api_ship_3, deck.api_ship_4, deck.api_ship_5
+        ];
+        const validIds = shipIds.filter(
+            (id) => id !== null && id !== undefined && id !== -1 && id !== 0
+        );
 
-        // 3. 获取这些舰船的详细数据
-        const { data: shipsData, error: shipsError } = await supabase
-            .from("ship2_raw")
-            .select("*")
-            .eq("user_id", user.id)
-            .in("api_id", shipIds);
+        // 5. 查舰船数据（ship2_raw 全字段）
+        let ships: unknown[] = [];
+        if (validIds.length > 0) {
+            const { data: shipRows, error: shipError } = await supabase
+                .from("ship2_raw")
+                .select("*")
+                .eq("user_id", user.id)
+                .in("api_id", validIds);
+            if (shipError) return json({ error: shipError.message }, 500);
 
-        if (shipsError) {
-            return new Response(JSON.stringify({ error: shipsError.message }), {
-                status: 500,
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-            });
+            // 6. 按舰队编成顺序排序
+            const byId = new Map((shipRows || []).map((s) => [s.api_id, s]));
+            ships = validIds.map((id) => byId.get(id)).filter(Boolean);
         }
 
-        // 4. 组装响应
-        const response = {
-            fleet_no: fleetNo,
-            fleet_name: deckData.api_name,
-            mission: {
-                status: deckData.api_mission_0,
-                expedition_id: deckData.api_mission_1,
-                return_time: deckData.api_mission_2
+        // 7. 返回
+        return json({
+            fleet: {
+                api_id: deck.api_id,
+                api_name: deck.api_name,
+                ship_ids: shipIds
             },
-            ships: shipsData || []
-        };
-
-        return new Response(JSON.stringify(response), {
-            status: 200,
-            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+            ships,
+            updated_at: deck.created_at
         });
-
-    } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), {
-            status: 500,
-            headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-        });
+    } catch (e) {
+        return json({ error: String(e) }, 500);
     }
 });
