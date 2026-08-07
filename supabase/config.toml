@@ -1,12 +1,6 @@
 # Supabase 配置文件
 # 此文件告诉 Supabase 要部署哪些资源
 
-[project]
-id = "kc-backend"
-name = "kc-backend"
-
-# 生产环境配置 - 关联实际 Supabase 项目
-[remotes.live]
 project_id = "gzryvfrzkfpwayfybnkp"
 
 [api]
