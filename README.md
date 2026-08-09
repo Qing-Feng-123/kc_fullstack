@@ -6,15 +6,19 @@
 
 **https://qing-feng-123.github.io/kc_fullstack/**
 
-聯合艦隊司令部・作戦室风格的舰队数据面板：舰队编成、舰娘八维雷达图、装备槽、舰队综合战力。
+聯合艦隊司令部・作戦室风格的数据面板：
+
+- **首页**：舰队编成、舰娘八维雷达图、装备槽、舰队综合战力
+- **资源页**：建造消耗（东京时间日历、油/弹/钢/铝消耗柱形图、当日建造记录）
 
 ## 项目结构
 
 ```
-├── docs/                  # 前端面板（GitHub Pages 源）
-│   └── index.html
-├── frontend/              # 前端源码副本
-│   └── index.html
+├── docs/                  # 前端面板（GitHub Pages 源，与 frontend/ 同步发布）
+│   ├── index.html         # 首页
+│   ├── resources.html     # 资源页
+│   └── assets/            # css / js（api.js 为唯一接口层）
+├── frontend/              # 前端源码（开发主副本，结构说明见 frontend/README.md）
 ├── scripts/               # Tampermonkey 拦截脚本（.user.js）
 └── supabase/
     ├── migrations/        # 数据库迁移（push 到 main 自动应用）

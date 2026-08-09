@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聯合艦隊司令部 — 資源状況</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="resources">
+
+<div id="siteNav"></div>
+
+<div class="card" style="max-width:1180px;margin:0 auto 22px;">
+  <div class="card-title"><span class="bar"></span>資 源 状 況</div>
+  <div class="res-menu-bar" style="margin:0;">
+    <select class="res-select" id="resMenu">
+      <option value="build">建造消耗</option>
+      <!-- 后续资源类目在此追加 option -->
+    </select>
+    <span class="status-line" id="resStatus"></span>
+  </div>
+</div>
+
+<!-- ======== 建造消耗视图 ======== -->
+<div id="viewBuild" style="display:none;">
+  <div class="res-grid">
+    <!-- 上半左：日历（东京时间） -->
+    <div class="card">
+      <div class="card-title"><span class="bar"></span>日 付 選 択</div>
+      <div class="cal-head">
+        <button class="cal-nav-btn" id="calPrev">◀</button>
+        <select id="calYear"></select>
+        <select id="calMonth"></select>
+        <button class="cal-nav-btn" id="calNext">▶</button>
+      </div>
+      <table class="cal-table">
+        <thead>
+          <tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th></tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 上半右：四个小柱形图（油/弹 | 钢/铝） -->
+    <div class="card">
+      <div class="card-title"><span class="bar"></span>建 造 消 耗 推 移</div>
+      <div class="charts-grid" id="chartsGrid"></div>
+    </div>
+  </div>
+
+  <!-- 下半：当日建造记录 -->
+  <div class="card build-table-wrap">
+    <div class="card-title"><span class="bar"></span>建 造 記 録</div>
+    <div class="res-date-label" id="buildDateLabel"></div>
+    <div id="buildRecords"></div>
+  </div>
+</div>
+
+<div class="footer">KC_FULLSTACK ― SUPABASE 中継 ― 機密保持ヲ厳守セヨ</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/resources.js"></script>
+</body>
+</html>
