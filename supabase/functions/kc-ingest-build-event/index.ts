@@ -186,7 +186,29 @@ async function archiveBuild(
         .lt("timestamp", getshipTime)
         .order("timestamp", { ascending: true });
 
-    const speedupList = speedchanges ?? [];
+    let speedupList = speedchanges ?? [];
+
+    // 步骤 3.5 兜底：本渠无 speedchange 时，跨渠查找（应对客户端渠号解析失败
+    // 或事件被写入其他渠流水表的情况）。取区间内最早的一条。
+    if (speedupList.length === 0) {
+        for (const n of [1, 2, 3, 4]) {
+            const otherTable = `build_stream_dock${n}`;
+            if (otherTable === streamTable) continue;
+            const { data: cross } = await supabase
+                .from(otherTable)
+                .select("*")
+                .eq("user_id", userId)
+                .eq("event_type", "speedchange")
+                .gt("timestamp", createship.timestamp)
+                .lt("timestamp", getshipTime)
+                .order("timestamp", { ascending: true })
+                .limit(1);
+            if (cross && cross.length > 0) {
+                speedupList = cross;
+                break;
+            }
+        }
+    }
 
     // 步骤 4：合并写入 build_archive
     const { error: archiveError } = await supabase.from("build_archive").insert({
