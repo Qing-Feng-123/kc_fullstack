@@ -227,9 +227,9 @@
         if (result.success) {
             addLog(`<span style="color:#00ff41;">[建造]</span> ${label} ${detail}`);
         } else if (result.skipped) {
-            addLog(`<span style="color:#888;">[建造]</span> ${label} ${detail} (已跳过)</span>`);
+            addLog(`<span style="color:#888;">[建造]</span> ${label} ${detail} (已跳过)`);
         } else {
-            addLog(`<span style="color:#ff4444;">[建造]</span> ${label} ${detail} 失败: ${result.error}</span>`);
+            addLog(`<span style="color:#ff4444;">[建造]</span> ${label} ${detail} 失败: ${result.error}`);
         }
     }
 
