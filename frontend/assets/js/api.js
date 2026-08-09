@@ -14,8 +14,7 @@ const CONFIG = {
   // 每个后端接口的相对路径
   ENDPOINTS: {
     queryFleet: '/kc-query-fleet',
-    // 示例：以后加资源接口时取消注释并新建对应函数
-    // queryResources: '/kc-query-resources',
+    queryBuilds: '/kc-query-builds',
   },
   // 优先读 localStorage 里用户覆盖的 key，否则用默认值
   API_KEY: localStorage.getItem('kc_api_key') || 'kc_qingfeng_20260807_abc123'
@@ -46,8 +45,15 @@ const KC_API = {
     return _kcGet('queryFleet', { fleet_no: fleetNo });
   },
 
-  // 示例：资源页接口（后端就绪后启用）
-  // getResources() {
-  //   return _kcGet('queryResources');
-  // },
+  /**
+   * 查询建造记录与资源消耗
+   * @param {string} date 东京日期 YYYY-MM-DD（当日记录）
+   * @param {number} days 消耗聚合天数（1/7/30）
+   * @returns {Promise<{date, days, records: Array, daily: Array}>}
+   */
+  getBuilds(date, days = 30) {
+    const params = { days };
+    if (date) params.date = date;
+    return _kcGet('queryBuilds', params);
+  },
 };

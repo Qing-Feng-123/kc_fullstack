@@ -36,7 +36,9 @@ function hpClass(now, max) {
   return '';
 }
 function shipDisplayName(s) {
-  return shipNameMap[s.api_id] || `図鑑No.${s.api_sortno ?? '?'} （ID:${s.api_id}）`;
+  // 优先级：localStorage 自定义名 > 后端中文名 > 后端日文名 > 图鉴编号兜底
+  return shipNameMap[s.api_id] || s.api_name_cn || s.api_name
+    || `図鑑No.${s.api_sortno ?? '?'} （ID:${s.api_id}）`;
 }
 // 速度/射程
 const SOKU = { 0: '陆上基地', 5: '低速', 10: '高速', 15: '高速+', 20: '最速' };
@@ -93,6 +95,7 @@ function renderShipList(data) {
         <div class="ship-name">${shipDisplayName(s)}</div>
         <div class="ship-meta">
           <span>${posName[i] || ''}艦</span>
+          ${s.api_stype_name ? `<span>${s.api_stype_name}</span>` : ''}
           <span class="hp-bar"><span class="hp-fill ${hpClass(s.api_nowhp, s.api_maxhp)}" style="display:block;width:${Math.round(100 * s.api_nowhp / s.api_maxhp)}%"></span></span>
           <span>HP ${s.api_nowhp}/${s.api_maxhp}</span>
           ${s.api_locked ? '<span>🔒</span>' : ''}

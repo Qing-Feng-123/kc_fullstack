@@ -242,3 +242,143 @@ body {
   text-align: center; margin-top: 36px; font-size: 11px; color: #3d4a5e;
   letter-spacing: 0.3em;
 }
+
+/* ============ 资源页：下拉菜单 ============ */
+.res-menu-bar {
+  max-width: 1180px; margin: 0 auto 22px;
+  display: flex; align-items: center; gap: 12px;
+}
+.res-select {
+  font-family: inherit; font-size: 14px; letter-spacing: 0.15em;
+  padding: 8px 34px 8px 16px;
+  background: var(--navy-1); color: var(--brass-hi);
+  border: 1px solid var(--brass-dim); cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--brass) 50%),
+                    linear-gradient(135deg, var(--brass) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 55%, calc(100% - 12px) 55%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+.res-select:hover, .res-select:focus { border-color: var(--brass); outline: none; }
+.res-select option { background: var(--navy-1); color: var(--ivory); }
+
+/* ============ 资源页：上下布局 ============ */
+.res-grid {
+  display: grid; grid-template-columns: 5fr 6fr; gap: 22px;
+  max-width: 1180px; margin: 0 auto;
+}
+@media (max-width: 900px) { .res-grid { grid-template-columns: 1fr; } }
+
+/* ============ 日历表格 ============ */
+.cal-head {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.cal-head select {
+  font-family: inherit; font-size: 14px; letter-spacing: 0.1em;
+  padding: 5px 10px; background: var(--navy-0); color: var(--ivory);
+  border: 1px solid var(--navy-3); cursor: pointer;
+}
+.cal-head select:focus { border-color: var(--brass); outline: none; }
+.cal-nav-btn {
+  font-family: inherit; cursor: pointer; font-size: 13px;
+  width: 30px; height: 30px;
+  background: var(--navy-1); color: var(--brass);
+  border: 1px solid var(--brass-dim); transition: all 0.2s;
+}
+.cal-nav-btn:hover { background: rgba(201,162,39,0.12); border-color: var(--brass); }
+.cal-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.cal-table th {
+  font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.15em;
+  font-weight: 400; padding: 6px 0;
+  border-bottom: 1px solid var(--navy-3);
+}
+.cal-table td {
+  text-align: center; padding: 0; height: 42px;
+}
+.cal-day {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 100%; height: 40px; cursor: pointer; user-select: none;
+  font-size: 14px; color: var(--ivory);
+  border: 1px solid transparent; transition: all 0.15s; position: relative;
+}
+.cal-day:hover { border-color: var(--crimson-hi); }
+.cal-day.other-month { color: #3d4a5e; }
+.cal-day.today { color: var(--brass-hi); font-weight: 700; }
+.cal-day.today::after {
+  content: ""; position: absolute; inset: 3px;
+  border: 1px dashed var(--brass-dim); pointer-events: none;
+}
+.cal-day.selected {
+  background: rgba(201,162,39,0.15); border-color: var(--brass);
+  color: var(--brass-hi); font-weight: 700;
+}
+.cal-day .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--crimson-hi); margin-top: 2px;
+  box-shadow: 0 0 5px rgba(196,61,61,0.7);
+}
+.cal-day .dot.none { visibility: hidden; }
+
+/* ============ 柱形图组 ============ */
+.charts-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+@media (max-width: 480px) { .charts-grid { grid-template-columns: 1fr; } }
+.mini-chart {
+  background: rgba(26,44,71,0.4); border: 1px solid var(--navy-3);
+  padding: 10px 12px 12px;
+}
+.mini-chart-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.mini-chart-title {
+  font-size: 13px; color: var(--brass); letter-spacing: 0.25em;
+}
+.range-switch { display: flex; gap: 4px; }
+.range-btn {
+  font-family: inherit; cursor: pointer; font-size: 10px; letter-spacing: 0.1em;
+  padding: 2px 8px; background: var(--navy-0); color: var(--ivory-dim);
+  border: 1px solid var(--navy-3); transition: all 0.15s;
+}
+.range-btn:hover { color: var(--ivory); }
+.range-btn.active {
+  color: var(--brass-hi); border-color: var(--brass);
+  background: rgba(201,162,39,0.12);
+}
+.mini-chart svg { display: block; width: 100%; height: auto; }
+.mini-chart-empty {
+  font-size: 11px; color: #4a5568; text-align: center; padding: 18px 0;
+  letter-spacing: 0.15em;
+}
+
+/* ============ 建造记录表 ============ */
+.build-table-wrap { max-width: 1180px; margin: 22px auto 0; overflow-x: auto; }
+.build-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.build-table th {
+  color: var(--brass); font-weight: 400; letter-spacing: 0.15em;
+  padding: 9px 10px; border-bottom: 1px solid var(--brass-dim);
+  white-space: nowrap; text-align: center; font-size: 12px;
+}
+.build-table td {
+  padding: 9px 10px; text-align: center;
+  border-bottom: 1px solid var(--navy-3);
+  color: var(--ivory); white-space: nowrap;
+}
+.build-table tr:hover td { background: rgba(26,44,71,0.5); }
+.build-type-badge {
+  display: inline-block; padding: 1px 10px; font-size: 11px;
+  letter-spacing: 0.1em; border: 1px solid;
+}
+.bt-normal { color: var(--ivory-dim); border-color: var(--navy-3); }
+.bt-large { color: var(--brass-hi); border-color: var(--brass); background: rgba(201,162,39,0.12); }
+.speedup-yes { color: var(--crimson-hi); }
+.speedup-no { color: var(--ivory-dim); }
+.build-result { color: var(--brass-hi); font-weight: 700; letter-spacing: 0.05em; }
+.res-date-label {
+  font-size: 12px; color: var(--ivory-dim); letter-spacing: 0.15em;
+  margin-bottom: 12px;
+}
+.res-date-label b { color: var(--brass-hi); font-weight: 700; }

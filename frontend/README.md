@@ -38,6 +38,16 @@ frontend/
 | 前端方法 | 后端 endpoint | 说明 |
 |---|---|---|
 | `KC_API.getFleet(fleetNo)` | `GET /functions/v1/kc-query-fleet?fleet_no=N` | 舰队编成，返回 `{ships, updated_at}` |
+| `KC_API.getBuilds(date, days)` | `GET /functions/v1/kc-query-builds?date=YYYY-MM-DD&days=N` | 建造记录（东京日期）+ 近 N 天消耗聚合，返回 `{date, records, daily}` |
+
+## 资源页（resources.html + resources.js）
+
+- 顶部下拉菜单切换资源类目，类目注册在 `resources.js` 的 `RES_VIEWS` 数组
+  （新增类目：加 option + 加一项 RES_VIEWS）。
+- 「建造消耗」视图：左侧日历（东京时间，可选年/月、点日期跳转），
+  右侧油/弹/钢/铝四个柱形图（各自可切 当日/7日/30日），
+  下方为选中日期的建造记录表（类型/投入/高速建材/完成时间/结果）。
+- 建造数据来自 `build_archive` 表，由 `kc-query-builds` 查询。
 
 API 网关与鉴权 key 在 `api.js` 的 `CONFIG` 中；
 key 可被 `localStorage.kc_api_key` 覆盖。
