@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./docs/images/warship_line_drawing.png" alt="战舰线图" width="100%">
+</p>
+
 # kc_fullstack
 
 舰队Collection（艦これ）游戏数据全栈面板：Tampermonkey 脚本拦截 kcsapi → Supabase Edge Functions 入库 → 聯合艦隊司令部风格前端展示。
