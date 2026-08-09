@@ -19,6 +19,22 @@ const CORS = {
     "Access-Control-Allow-Headers": "authorization, content-type"
 };
 const JSON_HEADERS = { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" };
+// 时间戳兼容：接受 ISO 字符串或 epoch 毫秒/秒数字，统一输出 ISO 字符串
+function normalizeTimestamp(ts: unknown): string {
+    if (typeof ts === "number" && Number.isFinite(ts)) {
+        const ms = ts < 1e12 ? ts * 1000 : ts;  // 秒级时间戳转毫秒
+        return new Date(ms).toISOString();
+    }
+    if (typeof ts === "string" && ts.trim()) {
+        if (/^\d+$/.test(ts.trim())) {
+            const n = Number(ts.trim());
+            return new Date(n < 1e12 ? n * 1000 : n).toISOString();
+        }
+        return ts;
+    }
+    return new Date().toISOString();
+}
+
 
 serve(async (req) => {
     if (req.method === "OPTIONS") {
@@ -53,7 +69,7 @@ serve(async (req) => {
 
         const eventType: string = evt.event_type;
         const dockId: number = parseInt(evt.dock_id);
-        const eventTime: string = evt.timestamp || new Date().toISOString();
+        const eventTime: string = normalizeTimestamp(evt.timestamp);
 
         if (!["createship", "getship", "speedchange"].includes(eventType)) {
             return new Response(JSON.stringify({ error: `Unknown event_type: ${eventType}` }), { status: 400, headers: JSON_HEADERS });
