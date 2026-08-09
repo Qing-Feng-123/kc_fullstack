@@ -1,0 +1,244 @@
+/* ============================================================
+   聯合艦隊司令部 — 全局样式
+   所有页面共用。新增页面时直接复用 .card / .card-title 等组件类。
+   ============================================================ */
+:root {
+  --navy-0: #070d18;
+  --navy-1: #0b1424;
+  --navy-2: #111e33;
+  --navy-3: #1a2c47;
+  --brass: #c9a227;
+  --brass-hi: #e8c95a;
+  --brass-dim: #8a742a;
+  --crimson: #9e1b1b;
+  --crimson-hi: #c43d3d;
+  --ivory: #e6ddc4;
+  --ivory-dim: #a99f83;
+  --ink: #d8cfb4;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Noto Serif SC", "Noto Serif JP", "Songti SC", "SimSun", serif;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(158,27,27,0.12), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px),
+    var(--navy-0);
+  min-height: 100vh;
+  color: var(--ink);
+  padding: 24px 16px 48px;
+}
+
+/* ============ 顶部导航栏（全站共用，由 nav.js 注入） ============ */
+.site-nav {
+  max-width: 1180px; margin: 0 auto 24px;
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--brass-dim); border-radius: 4px;
+  background: linear-gradient(180deg, var(--navy-2), var(--navy-1));
+  padding: 10px 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  flex-wrap: wrap;
+}
+.site-nav .brand {
+  color: var(--brass-hi); font-weight: 700; letter-spacing: 0.25em;
+  font-size: 15px; margin-right: 18px; white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(201,162,39,0.35);
+}
+.site-nav a.nav-link {
+  font-family: inherit; text-decoration: none; font-size: 13px;
+  letter-spacing: 0.2em; padding: 6px 16px;
+  color: var(--ivory-dim); border: 1px solid transparent;
+  transition: all 0.2s;
+}
+.site-nav a.nav-link:hover { color: var(--ivory); border-color: var(--crimson-hi); }
+.site-nav a.nav-link.active {
+  color: var(--brass-hi); border-color: var(--brass);
+  background: rgba(201,162,39,0.1);
+  box-shadow: inset 0 0 10px rgba(201,162,39,0.08);
+}
+
+/* ============ 司令部抬头 ============ */
+.header {
+  position: relative; text-align: center; margin: 0 auto 28px;
+  max-width: 900px; padding: 28px 20px 22px;
+  border: 1px solid var(--brass-dim);
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 50% 130%, rgba(158,27,27,0.22), transparent 60%),
+    linear-gradient(180deg, var(--navy-2), var(--navy-1));
+  box-shadow: 0 0 0 4px var(--navy-0), 0 0 0 5px var(--brass-dim), 0 12px 40px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.header::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-conic-gradient(from -90deg at 50% 135%, rgba(201,162,39,0.05) 0deg 6deg, transparent 6deg 12deg);
+}
+.header-anchor { width: 44px; height: 44px; margin-bottom: 6px; filter: drop-shadow(0 0 6px rgba(201,162,39,0.5)); }
+.header h1 {
+  color: var(--brass-hi); font-size: clamp(24px, 5vw, 36px);
+  letter-spacing: 0.35em; text-indent: 0.35em; font-weight: 700;
+  text-shadow: 0 2px 12px rgba(201,162,39,0.35);
+}
+.header .sub {
+  color: var(--ivory-dim); font-size: 13px; letter-spacing: 0.5em; text-indent: 0.5em;
+  margin-top: 8px;
+}
+.header .rule {
+  width: 70%; height: 1px; margin: 14px auto 0;
+  background: linear-gradient(90deg, transparent, var(--brass), transparent);
+}
+.stamp {
+  position: absolute; top: 16px; right: 18px;
+  width: 54px; height: 54px; border: 2px solid var(--crimson-hi);
+  border-radius: 6px; color: var(--crimson-hi);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; writing-mode: vertical-rl;
+  letter-spacing: 2px; transform: rotate(6deg); opacity: 0.85;
+  text-shadow: 0 0 8px rgba(196,61,61,0.4);
+}
+.updated-tag {
+  margin-top: 10px; font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.2em;
+}
+
+/* ============ 舰队 tabs ============ */
+.fleet-tabs {
+  display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap;
+}
+.fleet-tab {
+  padding: 10px 22px; cursor: pointer; user-select: none;
+  background: var(--navy-1); color: var(--ivory-dim);
+  border: 1px solid var(--navy-3);
+  font-family: inherit; font-size: 15px; letter-spacing: 0.15em;
+  transition: all 0.25s; position: relative;
+}
+.fleet-tab::before, .fleet-tab::after {
+  content: "◆"; position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 8px; color: var(--brass-dim); opacity: 0; transition: opacity 0.25s;
+}
+.fleet-tab::before { left: 8px; } .fleet-tab::after { right: 8px; }
+.fleet-tab.active {
+  background: linear-gradient(180deg, #2a2040, var(--navy-2));
+  border-color: var(--brass); color: var(--brass-hi);
+  box-shadow: 0 0 14px rgba(201,162,39,0.25), inset 0 0 12px rgba(201,162,39,0.08);
+}
+.fleet-tab.active::before, .fleet-tab.active::after { opacity: 1; }
+.fleet-tab:hover:not(.active) { border-color: var(--crimson-hi); color: var(--ivory); }
+
+/* ============ 布局与卡片 ============ */
+.main-grid {
+  display: grid; grid-template-columns: 5fr 6fr; gap: 22px;
+  max-width: 1180px; margin: 0 auto;
+}
+@media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: linear-gradient(180deg, var(--navy-1), var(--navy-2));
+  border: 1px solid var(--navy-3);
+  padding: 20px; position: relative;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+}
+.card::before {
+  content: ""; position: absolute; inset: 4px; pointer-events: none;
+  border: 1px solid rgba(201,162,39,0.18);
+}
+.card-title {
+  color: var(--brass); font-size: 16px; letter-spacing: 0.3em;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--navy-3);
+  display: flex; align-items: center; gap: 10px;
+}
+.card-title .bar { width: 4px; height: 16px; background: var(--crimson); box-shadow: 0 0 8px rgba(158,27,27,0.6); }
+
+/* ============ 舰娘列表 ============ */
+.ship-list { display: flex; flex-direction: column; gap: 10px; }
+.ship-item {
+  display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px;
+  padding: 10px 12px; cursor: pointer;
+  background: rgba(26,44,71,0.45); border: 1px solid transparent; border-left: 3px solid var(--brass-dim);
+  transition: all 0.2s;
+}
+.ship-item:hover { background: rgba(26,44,71,0.8); border-left-color: var(--crimson-hi); }
+.ship-item.selected { border-color: var(--brass); border-left-color: var(--brass); background: rgba(201,162,39,0.08); }
+.ship-pos {
+  width: 38px; height: 38px; border: 1px solid var(--brass-dim); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--brass); font-size: 15px; font-weight: 700;
+  background: radial-gradient(circle, rgba(201,162,39,0.12), transparent 70%);
+}
+.ship-item.selected .ship-pos { background: var(--brass); color: var(--navy-0); }
+.ship-name { font-weight: 700; color: var(--ivory); font-size: 15px; letter-spacing: 0.05em; }
+.ship-meta { font-size: 11px; color: var(--ivory-dim); margin-top: 3px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.hp-bar { width: 90px; height: 5px; background: #0a1220; border: 1px solid var(--navy-3); }
+.hp-fill { height: 100%; background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+.hp-fill.hurt { background: linear-gradient(90deg, #b28704, #e0b93c); }
+.hp-fill.crit { background: linear-gradient(90deg, #8b1a1a, #c43d3d); }
+.ship-right { text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.ship-lv { color: var(--brass-hi); font-weight: 700; font-size: 14px; letter-spacing: 0.05em; }
+.cond-badge {
+  display: inline-block; padding: 1px 10px; font-size: 11px; letter-spacing: 0.1em;
+  border: 1px solid;
+}
+.cond-sparkle { color: var(--brass-hi); border-color: var(--brass); background: rgba(201,162,39,0.15); }
+.cond-green { color: #7cc47f; border-color: #3f6b41; background: rgba(60,120,60,0.12); }
+.cond-normal { color: var(--ivory-dim); border-color: var(--navy-3); }
+.cond-orange { color: #e0a13c; border-color: #8a5c14; background: rgba(180,120,30,0.12); }
+.cond-red { color: var(--crimson-hi); border-color: var(--crimson); background: rgba(158,27,27,0.18); }
+
+/* ============ 详情 / 雷达图 ============ */
+.radar-container { display: flex; justify-content: center; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+@media (max-width: 480px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-box {
+  background: rgba(26,44,71,0.5); padding: 9px 6px; text-align: center;
+  border-top: 2px solid var(--brass-dim);
+}
+.stat-label { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.2em; }
+.stat-value { font-size: 20px; font-weight: 700; color: var(--ivory); margin-top: 3px; }
+.stat-max { font-size: 10px; color: var(--brass-dim); }
+.modernized { color: #7cc47f; }
+
+.dossier {
+  margin-top: 16px; padding: 12px 14px;
+  background: rgba(26,44,71,0.4); border: 1px dashed var(--brass-dim);
+  font-size: 12px; color: var(--ivory-dim); line-height: 2;
+}
+.dossier b { color: var(--ivory); font-weight: 600; }
+.equip-row { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.equip-slot {
+  min-width: 46px; height: 40px; padding: 0 6px;
+  border: 1px solid var(--navy-3); background: var(--navy-0);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 10px; color: #566;
+}
+.equip-slot.filled { border-color: var(--brass-dim); color: var(--brass); }
+.equip-slot .cap { font-size: 9px; color: var(--ivory-dim); }
+
+.empty-slot { text-align: center; padding: 48px 20px; color: #4a5568; font-style: italic; letter-spacing: 0.2em; }
+
+/* ============ 舰队总览 ============ */
+.bottom-card { max-width: 1180px; margin: 22px auto 0; }
+.fleet-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.summary-item {
+  background: rgba(26,44,71,0.45); padding: 13px 8px; text-align: center;
+  border-bottom: 2px solid var(--crimson);
+}
+.summary-label { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.15em; }
+.summary-value { font-size: 21px; font-weight: 700; color: var(--brass-hi); margin-top: 5px; }
+
+/* ============ 控制条 ============ */
+.ctrl-bar {
+  max-width: 1180px; margin: 0 auto 22px; display: flex; gap: 10px;
+  justify-content: flex-end; align-items: center; flex-wrap: wrap;
+}
+.ctrl-btn {
+  font-family: inherit; cursor: pointer; font-size: 12px; letter-spacing: 0.2em;
+  padding: 7px 18px; background: var(--navy-1); color: var(--brass);
+  border: 1px solid var(--brass-dim); transition: all 0.2s;
+}
+.ctrl-btn:hover { background: rgba(201,162,39,0.12); border-color: var(--brass); }
+.status-line { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.1em; }
+.status-line.err { color: var(--crimson-hi); }
+
+.footer {
+  text-align: center; margin-top: 36px; font-size: 11px; color: #3d4a5e;
+  letter-spacing: 0.3em;
+}
