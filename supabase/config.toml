@@ -24,3 +24,12 @@ verify_jwt = false
 
 [functions.kc-query-fleet]
 verify_jwt = false
+
+[functions.kc-ingest-build-event]
+verify_jwt = false
+
+[functions.kc-ingest-kdock]
+verify_jwt = false
+
+[functions.kc-ingest-material]
+verify_jwt = false
