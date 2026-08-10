@@ -9,8 +9,7 @@
 const NAV_ITEMS = [
   { id: 'home',      label: '首頁',   href: 'index.html' },
   { id: 'resources', label: '資源',   href: 'resources.html' },
-  // 后续页面在这里追加，例如：
-  // { id: 'quests', label: '任務', href: 'quests.html' },
+  { id: 'quests',    label: '任务',   href: 'quests.html' },
 ];
 
 (function renderNav() {
