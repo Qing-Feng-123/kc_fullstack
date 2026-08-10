@@ -1,7 +1,7 @@
-// Edge Function: 查询任务快照（questlist_raw，无历史、实时刷新）
+// Edge Function: 查询任务宽表快照（questlist_raw，含翻译列，无历史、实时刷新）
 // 路径: GET /functions/v1/kc-query-quests
 // 请求头: Authorization: Bearer <API_KEY>
-// 返回: { quests: [...按 api_no 升序], count, updated_at }
+// 返回: { quests: [...按 api_no 升序，含 name_cn/desc_cn/memo_cn], count, updated_at }
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -41,10 +41,10 @@ serve(async (req) => {
             .single();
         if (userError || !user) return json({ error: "Invalid API Key" }, 401);
 
-        // 2. 全量取出该用户任务快照，按任务ID升序
+        // 2. 全量取出该用户任务宽表，按任务ID升序（后端直接给宽表，前端不组装）
         const { data: quests, error } = await supabase
             .from("questlist_raw")
-            .select("api_no, api_category, api_type, api_state, api_title, api_detail, api_progress_flag, raw_data, updated_at")
+            .select("api_no, api_category, api_type, api_state, api_title, api_detail, api_progress_flag, name_cn, desc_cn, memo_cn, raw_data, updated_at")
             .eq("user_id", user.id)
             .order("api_no", { ascending: true });
         if (error) return json({ error: error.message }, 500);
