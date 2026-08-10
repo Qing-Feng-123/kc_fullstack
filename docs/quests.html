@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聯合艦隊司令部 — 任務一覧</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+/* ======== 任务页专属样式（仅 quests.html 使用，不影响其他页面） ======== */
+.quest-layout{display:flex;gap:18px;max-width:1180px;margin:0 auto 22px;align-items:flex-start;}
+.quest-cat-panel{width:180px;flex-shrink:0;}
+.quest-cat-panel .cat-item{display:flex;align-items:center;gap:8px;padding:7px 10px;margin-bottom:4px;border:1px solid #2a3a4a;border-radius:4px;cursor:pointer;font-size:13px;color:#c9d6e2;background:rgba(10,20,30,.55);}
+.quest-cat-panel .cat-item:hover{border-color:#c9a227;}
+.quest-cat-panel .cat-item input{accent-color:#c9a227;}
+.quest-main{flex:1;min-width:0;}
+.quest-type-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.quest-type-btn{padding:6px 14px;font-size:13px;border:1px solid #2a3a4a;border-radius:4px;background:rgba(10,20,30,.55);color:#c9d6e2;cursor:pointer;font-family:inherit;}
+.quest-type-btn:hover{border-color:#c9a227;}
+.quest-type-btn.active{background:#c9a227;color:#14100a;border-color:#c9a227;font-weight:bold;}
+.quest-list{max-height:640px;overflow-y:auto;border:1px solid #2a3a4a;border-radius:4px;}
+.quest-row{display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid #1c2836;align-items:flex-start;}
+.quest-row:last-child{border-bottom:none;}
+.quest-no{width:56px;flex-shrink:0;color:#c9a227;font-weight:bold;font-size:14px;padding-top:2px;}
+.quest-body{flex:1;min-width:0;}
+.quest-title{font-size:14px;color:#e8eef4;margin-bottom:3px;}
+.quest-detail{font-size:12px;color:#8fa3b5;line-height:1.5;word-break:break-all;}
+.quest-badges{display:flex;gap:6px;flex-shrink:0;padding-top:2px;}
+.quest-badge{font-size:11px;padding:2px 8px;border-radius:3px;border:1px solid #2a3a4a;color:#9db2c4;white-space:nowrap;}
+.quest-badge.state-2{color:#ffd700;border-color:#6b5a1e;}
+.quest-badge.state-3{color:#6fdc8c;border-color:#1e5a30;}
+.quest-pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.quest-pager button{min-width:34px;padding:6px 10px;font-size:13px;border:1px solid #2a3a4a;border-radius:4px;background:rgba(10,20,30,.55);color:#c9d6e2;cursor:pointer;font-family:inherit;}
+.quest-pager button:hover:not(:disabled){border-color:#c9a227;}
+.quest-pager button.active{background:#c9a227;color:#14100a;border-color:#c9a227;font-weight:bold;}
+.quest-pager button:disabled{opacity:.35;cursor:default;}
+.quest-pager .pager-info{font-size:12px;color:#8fa3b5;margin:0 6px;}
+.quest-empty{padding:40px;text-align:center;color:#8fa3b5;font-size:13px;}
+</style>
+</head>
+<body data-page="quests">
+
+<div id="siteNav"></div>
+
+<div class="card" style="max-width:1180px;margin:0 auto 22px;">
+  <div class="card-title"><span class="bar"></span>任 務 一 覧</div>
+  <span class="status-line" id="questStatus"> awaiting telegram… </span>
+  <button class="ctrl-btn" id="btnQuestRefresh">⟳ 電文受信</button>
+</div>
+
+<div class="quest-layout">
+  <!-- 左侧：category 筛选 -->
+  <div class="card quest-cat-panel">
+    <div class="card-title"><span class="bar"></span>種 別</div>
+    <div id="catFilter"></div>
+  </div>
+
+  <!-- 右侧：type 筛选 + 长列表 + 翻页 -->
+  <div class="quest-main">
+    <div class="card" style="margin-bottom:0;">
+      <div class="quest-type-bar" id="typeFilter"></div>
+      <div class="quest-list" id="questList"></div>
+      <div class="quest-pager" id="questPager"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">KC_FULLSTACK ― SUPABASE 中継 ― 機密保持ヲ厳守セヨ</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/quests.js"></script>
+</body>
+</html>

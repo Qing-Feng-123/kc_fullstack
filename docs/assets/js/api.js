@@ -15,6 +15,7 @@ const CONFIG = {
   ENDPOINTS: {
     queryFleet: '/kc-query-fleet',
     queryBuilds: '/kc-query-builds',
+    queryQuests: '/kc-query-quests',
   },
   // 优先读 localStorage 里用户覆盖的 key，否则用默认值
   API_KEY: localStorage.getItem('kc_api_key') || 'kc_qingfeng_20260807_abc123'
@@ -55,5 +56,13 @@ const KC_API = {
     const params = { days };
     if (date) params.date = date;
     return _kcGet('queryBuilds', params);
+  },
+
+  /**
+   * 查询任务快照（questlist_raw 全量、按 api_no 升序，无历史实时刷新）
+   * @returns {Promise<{quests: Array, count: number, updated_at: string|null}>}
+   */
+  getQuests() {
+    return _kcGet('queryQuests');
   },
 };
