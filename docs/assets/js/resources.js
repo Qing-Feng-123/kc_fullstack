@@ -210,13 +210,13 @@ function drawBars(rows, key) {
     const x = 4 + i * gap + (gap - bw) / 2;
     const y = H - padB - h;
     const isSelected = r.date === buildState.selectedDate;
-    const fill = isSelected ? '#e8c95a' : '#8a742a';
+    const fill = isSelected ? '#8a7226' : '#9c8a55';
     bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="${Math.max(h, 0.5).toFixed(1)}" fill="${fill}" opacity="${r[key] > 0 ? 1 : 0.25}"/>`;
     if (n <= 7 || (n <= 30 && i % 5 === 0)) {
-      bars += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 3}" text-anchor="middle" fill="#566" font-size="8">${r.date.slice(5).replace('-', '/')}</text>`;
+      bars += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 3}" text-anchor="middle" fill="#8a7b5c" font-size="8">${r.date.slice(5).replace('-', '/')}</text>`;
     }
     if (r[key] > 0 && n <= 7) {
-      bars += `<text x="${(x + bw / 2).toFixed(1)}" y="${(y - 3).toFixed(1)}" text-anchor="middle" fill="#a99f83" font-size="8">${r[key]}</text>`;
+      bars += `<text x="${(x + bw / 2).toFixed(1)}" y="${(y - 3).toFixed(1)}" text-anchor="middle" fill="#6e5f45" font-size="8">${r[key]}</text>`;
     }
   });
   return `<svg viewBox="0 0 ${W} ${H}">${bars}</svg>`;

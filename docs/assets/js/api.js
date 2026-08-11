@@ -16,6 +16,7 @@ const CONFIG = {
     queryFleet: '/kc-query-fleet',
     queryBuilds: '/kc-query-builds',
     queryQuests: '/kc-query-quests',
+    userSettings: '/kc-user-settings',
   },
   // 优先读 localStorage 里用户覆盖的 key，否则用默认值
   API_KEY: localStorage.getItem('kc_api_key') || 'kc_qingfeng_20260807_abc123'
@@ -27,6 +28,24 @@ async function _kcGet(endpoint, params = {}) {
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   const res = await fetch(url, {
     headers: { 'Authorization': 'Bearer ' + CONFIG.API_KEY }
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status} ${t.slice(0, 120)}`);
+  }
+  return res.json();
+}
+
+/** 内部：POST 封装（body 为 FormData 或 JSON 对象） */
+async function _kcPost(endpoint, body) {
+  const isForm = body instanceof FormData;
+  const res = await fetch(CONFIG.API_BASE + CONFIG.ENDPOINTS[endpoint], {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + CONFIG.API_KEY,
+      ...(isForm ? {} : { 'Content-Type': 'application/json' })
+    },
+    body: isForm ? body : JSON.stringify(body)
   });
   if (!res.ok) {
     const t = await res.text().catch(() => '');
@@ -64,5 +83,34 @@ const KC_API = {
    */
   getQuests() {
     return _kcGet('queryQuests');
+  },
+
+  /**
+   * 读取个人设定（提督名 / 头像 / 中央框背景 / 全局背景，图片均存后端）
+   * @returns {Promise<{display_name, avatar_url, panel_bg_url, page_bg_url, updated_at}>}
+   */
+  getSettings() {
+    return _kcGet('userSettings');
+  },
+
+  /**
+   * 更新提督名（保存到后端 user_settings 表）
+   * @param {string} displayName
+   */
+  updateDisplayName(displayName) {
+    return _kcPost('userSettings', { display_name: displayName });
+  },
+
+  /**
+   * 上传图片资产到后端（Supabase Storage，同名覆盖）
+   * @param {'avatar'|'panel_bg'|'page_bg'} field 资产类型
+   * @param {File} file 图片文件
+   * @returns {Promise<{field, url}>}
+   */
+  uploadAsset(field, file) {
+    const fd = new FormData();
+    fd.append('field', field);
+    fd.append('file', file);
+    return _kcPost('userSettings', fd);
   },
 };

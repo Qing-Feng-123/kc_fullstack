@@ -11,53 +11,53 @@
 
 /* 纵轴（左侧）筛选：全 / 遂行中 / Daily / Weekly / Monthly / Once / Others */
 .quest-vfilter{width:150px;flex-shrink:0;}
-.vfilter-item{display:flex;align-items:baseline;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid #2a3a4a;border-radius:4px;cursor:pointer;background:rgba(10,20,30,.55);color:#c9d6e2;}
-.vfilter-item:hover{border-color:#c9a227;}
-.vfilter-item.active{background:#c9a227;border-color:#c9a227;}
-.vfilter-item.active .vf-jp,.vfilter-item.active .vf-en{color:#14100a;}
+.vfilter-item{display:flex;align-items:baseline;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid rgba(107,80,19,.35);border-radius:3px;cursor:pointer;background:rgba(191,176,134,.45);color:#342a1b;}
+.vfilter-item:hover{border-color:#6b5013;}
+.vfilter-item.active{background:#6b5013;border-color:#6b5013;}
+.vfilter-item.active .vf-jp,.vfilter-item.active .vf-en{color:#ddd0ac;}
 .vf-jp{font-size:16px;font-weight:bold;}
-.vf-en{font-size:11px;color:#8fa3b5;}
+.vf-en{font-size:11px;color:#6e5f45;}
 
 .quest-main{flex:1;min-width:0;}
 
 /* 横轴（上方）筛选：出撃 / 演習 / 遠征 / 工廠 / その他 */
 .quest-hfilter{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
-.hfilter-btn{padding:7px 18px;font-size:14px;border:1px solid #2a3a4a;border-radius:4px;background:rgba(10,20,30,.55);color:#c9d6e2;cursor:pointer;font-family:inherit;}
-.hfilter-btn:hover{border-color:#c9a227;}
-.hfilter-btn.active{background:#c9a227;color:#14100a;border-color:#c9a227;font-weight:bold;}
+.hfilter-btn{padding:7px 18px;font-size:14px;border:1px solid rgba(107,80,19,.35);border-radius:3px;background:rgba(191,176,134,.45);color:#342a1b;cursor:pointer;font-family:inherit;}
+.hfilter-btn:hover{border-color:#6b5013;}
+.hfilter-btn.active{background:#6b5013;color:#ddd0ac;border-color:#6b5013;font-weight:bold;}
 
 /* 上半：左右双语列表 */
 .quest-dual{display:flex;gap:12px;}
 .quest-col{flex:1;min-width:0;}
-.quest-col-head{text-align:center;font-size:13px;color:#c9a227;letter-spacing:4px;padding:6px 0 10px;}
+.quest-col-head{text-align:center;font-size:13px;color:#6b5013;letter-spacing:4px;padding:6px 0 10px;}
 .quest-col-list{display:flex;flex-direction:column;gap:8px;}
-.quest-row{border:1px solid #2a3a4a;border-radius:4px;padding:10px 12px;background:rgba(10,20,30,.55);cursor:pointer;min-height:84px;box-sizing:border-box;}
-.quest-row:hover{border-color:#c9a227;}
-.quest-row.selected{border-color:#c9a227;background:rgba(201,162,39,.14);box-shadow:0 0 0 1px #c9a227 inset;}
-.quest-row.state-2{border-left:3px solid #ffd700;}
+.quest-row{border:1px solid rgba(107,80,19,.3);border-radius:3px;padding:10px 12px;background:rgba(191,176,134,.4);cursor:pointer;min-height:84px;box-sizing:border-box;}
+.quest-row:hover{border-color:#6b5013;}
+.quest-row.selected{border-color:#6b5013;background:rgba(107,80,19,.14);box-shadow:0 0 0 1px #6b5013 inset;}
+.quest-row.state-2{border-left:3px solid #8a7226;}
 .qr-top{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
-.qr-no{color:#c9a227;font-weight:bold;font-size:13px;flex-shrink:0;}
-.qr-title{font-size:14px;color:#e8eef4;line-height:1.4;word-break:break-all;}
-.qr-detail{font-size:12px;color:#8fa3b5;line-height:1.5;word-break:break-all;}
-.qr-badge{margin-left:auto;flex-shrink:0;font-size:11px;padding:1px 7px;border-radius:3px;border:1px solid #2a3a4a;color:#9db2c4;white-space:nowrap;}
-.qr-badge.state-2{color:#ffd700;border-color:#6b5a1e;}
-.qr-badge.state-3{color:#6fdc8c;border-color:#1e5a30;}
-.quest-empty{padding:40px;text-align:center;color:#8fa3b5;font-size:13px;border:1px dashed #2a3a4a;border-radius:4px;}
+.qr-no{color:#6b5013;font-weight:bold;font-size:13px;flex-shrink:0;}
+.qr-title{font-size:14px;color:#2a2113;line-height:1.4;word-break:break-all;}
+.qr-detail{font-size:12px;color:#6e5f45;line-height:1.5;word-break:break-all;}
+.qr-badge{margin-left:auto;flex-shrink:0;font-size:11px;padding:1px 7px;border-radius:3px;border:1px solid rgba(107,80,19,.35);color:#6e5f45;white-space:nowrap;}
+.qr-badge.state-2{color:#77601a;border-color:#9c8a55;}
+.qr-badge.state-3{color:#4a6b35;border-color:#6b8a55;}
+.quest-empty{padding:40px;text-align:center;color:#8a7b5c;font-size:13px;border:1px dashed rgba(107,80,19,.4);border-radius:3px;}
 
 /* 翻页（左右共享） */
 .quest-pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap;}
-.quest-pager button{min-width:34px;padding:6px 10px;font-size:13px;border:1px solid #2a3a4a;border-radius:4px;background:rgba(10,20,30,.55);color:#c9d6e2;cursor:pointer;font-family:inherit;}
-.quest-pager button:hover:not(:disabled){border-color:#c9a227;}
-.quest-pager button.active{background:#c9a227;color:#14100a;border-color:#c9a227;font-weight:bold;}
+.quest-pager button{min-width:34px;padding:6px 10px;font-size:13px;border:1px solid rgba(107,80,19,.35);border-radius:3px;background:rgba(191,176,134,.45);color:#342a1b;cursor:pointer;font-family:inherit;}
+.quest-pager button:hover:not(:disabled){border-color:#6b5013;}
+.quest-pager button.active{background:#6b5013;color:#ddd0ac;border-color:#6b5013;font-weight:bold;}
 .quest-pager button:disabled{opacity:.35;cursor:default;}
-.quest-pager .pager-info{font-size:12px;color:#8fa3b5;margin:0 6px;}
+.quest-pager .pager-info{font-size:12px;color:#6e5f45;margin:0 6px;}
 
 /* 下半：memo 数据呈现框 */
 .quest-memo-wrap{max-width:1280px;margin:0 auto 22px;}
 .quest-memo-box{min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px 32px;}
-.memo-title{font-size:12px;color:#c9a227;letter-spacing:3px;margin-bottom:10px;}
-.memo-content{font-size:15px;color:#e8eef4;line-height:1.8;white-space:pre-wrap;word-break:break-all;}
-.memo-empty{color:#8fa3b5;font-size:13px;}
+.memo-title{font-size:12px;color:#6b5013;letter-spacing:3px;margin-bottom:10px;}
+.memo-content{font-size:15px;color:#2a2113;line-height:1.8;white-space:pre-wrap;word-break:break-all;}
+.memo-empty{color:#8a7b5c;font-size:13px;}
 </style>
 </head>
 <body data-page="quests">
@@ -114,6 +114,7 @@
 
 <script src="assets/js/api.js"></script>
 <script src="assets/js/nav.js"></script>
+<script src="assets/js/settings.js"></script>
 <script src="assets/js/quests.js"></script>
 </body>
 </html>

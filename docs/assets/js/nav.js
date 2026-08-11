@@ -4,6 +4,8 @@
    用法：页面 <body> 开头放 <div id="siteNav"></div>，
    并在自身页面脚本之前引入本文件。
    新增页面：在 NAV_ITEMS 里加一项即可，无需改其他文件。
+   左上角 brand 的图标与文字由 settings.js 按后端设定改写
+   （默认 ⚓ 聯合艦隊）；右上角齿轮按钮打开档案室设定面板。
    ============================================================ */
 
 const NAV_ITEMS = [
@@ -20,8 +22,12 @@ const NAV_ITEMS = [
     || (location.pathname.split('/').pop() || 'index.html').replace('.html', '');
   host.className = 'site-nav';
   host.innerHTML =
-    '<span class="brand">⚓ 聯合艦隊</span>' +
+    '<span class="brand" id="navBrand">' +
+      '<span id="brandIcon">⚓</span>' +
+      '<span id="brandText">聯合艦隊</span>' +
+    '</span>' +
     NAV_ITEMS.map(it =>
       `<a class="nav-link ${it.id === page ? 'active' : ''}" href="${it.href}">${it.label}</a>`
-    ).join('');
+    ).join('') +
+    '<button class="nav-gear" id="btnSettings" title="設定">⚙</button>';
 })();
