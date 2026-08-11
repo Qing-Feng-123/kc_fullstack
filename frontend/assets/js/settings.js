@@ -46,8 +46,8 @@
         const base = r.url.split('?')[0];
         return keep.some(u => base === u) ? null : c.delete(r);
       }));
-      // 预热当前图片（无网络时使用缓存，sw.js 拦截）
-      keep.forEach(u => fetch(u).catch(() => {}));
+      // 预热当前图片（带版本参数，与页面实际请求键一致，sw.js 拦截缓存）
+      keep.forEach(u => fetch(bust(u, s.updated_at)).catch(() => {}));
     } catch (e) {}
   }
 
