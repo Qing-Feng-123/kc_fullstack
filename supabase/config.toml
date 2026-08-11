@@ -33,3 +33,12 @@ verify_jwt = false
 
 [functions.kc-ingest-material]
 verify_jwt = false
+
+[functions.kc-query-builds]
+verify_jwt = false
+
+[functions.kc-query-quests]
+verify_jwt = false
+
+[functions.kc-user-settings]
+verify_jwt = false
