@@ -17,14 +17,21 @@
   const $ = id => document.getElementById(id);
 
   /* ---------------- 设定应用 ---------------- */
+  // 缓存刷新：后端同名覆盖后 URL 不变，附加版本参数强制加载最新图
+  function bust(url, ver) {
+    if (!url) return url;
+    return url + (url.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(ver || Date.now());
+  }
+
   function applySettings(s) {
     if (!s) return;
+    const ver = s.updated_at || Date.now();
     // 左上角 brand：头像 + 提督名
     const icon = $('brandIcon'), text = $('brandText');
     if (text) text.textContent = s.display_name || '聯合艦隊';
     if (icon) {
       if (s.avatar_url) {
-        icon.innerHTML = `<img class="brand-avatar" src="${s.avatar_url}" alt="avatar">`;
+        icon.innerHTML = `<img class="brand-avatar" src="${bust(s.avatar_url, ver)}" alt="avatar">`;
       } else {
         icon.textContent = '⚓';
       }
@@ -39,7 +46,7 @@
         header.prepend(layer);
       }
       if (s.panel_bg_url) {
-        document.documentElement.style.setProperty('--user-panel-bg', `url("${s.panel_bg_url}")`);
+        document.documentElement.style.setProperty('--user-panel-bg', `url("${bust(s.panel_bg_url, ver)}")`);
         header.classList.add('has-panel-bg');
       } else {
         header.classList.remove('has-panel-bg');
@@ -47,7 +54,7 @@
     }
     // 全局背景（所有页面一致）
     if (s.page_bg_url) {
-      document.documentElement.style.setProperty('--user-page-bg', `url("${s.page_bg_url}")`);
+      document.documentElement.style.setProperty('--user-page-bg', `url("${bust(s.page_bg_url, ver)}")`);
       document.body.classList.add('has-page-bg');
     } else {
       document.body.classList.remove('has-page-bg');
