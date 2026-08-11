@@ -15,7 +15,7 @@
 (function () {
   const $ = id => document.getElementById(id);
   const CACHE_KEY = 'kc_settings_cache_v1';
-  const TTL_MS = 6 * 3600 * 1000;           // 6 小时回源一次
+  const TTL_MS = 2 * 60 * 1000;              // 2 分钟回源一次
   const IMG_CACHE = 'kc-user-assets-v1';     // 与 sw.js 保持一致
 
   /* ---------------- Service Worker 注册（图片长驻缓存） ---------------- */
@@ -222,14 +222,14 @@
     // 提督名 + 司令部名保存（存后端，成功后回源刷新）
     $('kcSaveName').addEventListener('click', async () => {
       const st = $('kcNameStatus');
-      st.className = 'kc-status'; st.textContent = '保存中…';
+      st.className = 'kc-status'; st.textContent = '同期中…';
       try {
         await KC_API.updateProfile({
           display_name: $('kcName').value.trim(),
           hq_name: $('kcHq').value.trim()
         });
         await refreshSettings();
-        st.className = 'kc-status ok'; st.textContent = '✓ 后端に保存しました';
+        st.className = 'kc-status ok'; st.textContent = '✓ 同期完了';
       } catch (e) {
         st.className = 'kc-status err'; st.textContent = '保存失敗: ' + e.message;
       }
@@ -245,13 +245,13 @@
         const reader = new FileReader();
         reader.onload = () => showPreview($(previewId), reader.result, isAvatar);
         reader.readAsDataURL(file);
-        st.className = 'kc-status'; st.textContent = '后端へ送信中…';
+        st.className = 'kc-status'; st.textContent = '同期中…';
         try {
           await KC_API.uploadAsset(field, file);
           await refreshSettings();
           const url = currentSettings[field + '_url'];
           if (url) showPreview($(previewId), bust(url, currentSettings.updated_at), isAvatar);
-          st.className = 'kc-status ok'; st.textContent = '✓ 后端に保存しました（前の画像は上書き）';
+          st.className = 'kc-status ok'; st.textContent = '✓ 同期完了（前の画像は上書き）';
         } catch (e) {
           st.className = 'kc-status err'; st.textContent = '保存失敗: ' + e.message;
         }
