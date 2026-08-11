@@ -147,27 +147,27 @@ function drawRadar(s) {
     const r = R / 4 * i;
     let p = '';
     for (let j = 0; j < 8; j++) { const [x, y] = pt(j, r); p += `${x},${y} `; }
-    svg += `<polygon points="${p}" fill="none" stroke="#1a2c47" stroke-width="1"/>`;
+    svg += `<polygon points="${p}" fill="none" stroke="rgba(74,58,36,0.35)" stroke-width="1"/>`;
   }
   for (let j = 0; j < 8; j++) {
     const [x, y] = pt(j, R);
-    svg += `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="#1a2c47"/>`;
+    svg += `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="rgba(74,58,36,0.35)"/>`;
   }
   let dp = '';
   for (let j = 0; j < 8; j++) {
     const ratio = Math.min(stats[j].v / stats[j].m, 1);
     const [x, y] = pt(j, R * ratio); dp += `${x},${y} `;
   }
-  svg += `<polygon points="${dp}" fill="rgba(158,27,27,0.35)" stroke="#c43d3d" stroke-width="2"/>`;
+  svg += `<polygon points="${dp}" fill="rgba(140,43,32,0.3)" stroke="#8c2b20" stroke-width="2"/>`;
   for (let j = 0; j < 8; j++) {
     const st = stats[j];
     const ratio = Math.min(st.v / st.m, 1);
     const [x, y] = pt(j, R * ratio);
-    svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#e8c95a"/>`;
+    svg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#6b5013"/>`;
     const [lx, ly] = pt(j, R + 20);
-    svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#a99f83" font-size="12" font-family="serif">${st.name}</text>`;
+    svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#6e5f45" font-size="12" font-family="serif">${st.name}</text>`;
     const [vx, vy] = pt(j, R + 34);
-    svg += `<text x="${vx}" y="${vy}" text-anchor="middle" dominant-baseline="middle" fill="#e8c95a" font-size="11" font-weight="bold">${st.v}</text>`;
+    svg += `<text x="${vx}" y="${vy}" text-anchor="middle" dominant-baseline="middle" fill="#77601a" font-size="11" font-weight="bold">${st.v}</text>`;
   }
   svg += '</svg>';
   return svg;

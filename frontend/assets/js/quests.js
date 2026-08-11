@@ -180,7 +180,7 @@ function renderMemo() {
     host.innerHTML = `<span class="memo-empty">No.${q.api_no} ― ${memo === UNTRANSLATED ? '新任务未翻译' : 'メモなし'} ―</span>`;
     return;
   }
-  host.innerHTML = `<span style="color:#c9a227;">No.${q.api_no}</span><br>${esc(memo)}`;
+  host.innerHTML = `<span style="color:#6b5013;">No.${q.api_no}</span><br>${esc(memo)}`;
 }
 
 /* ---------- 数据加载 ---------- */
