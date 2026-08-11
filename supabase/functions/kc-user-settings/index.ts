@@ -52,11 +52,12 @@ serve(async (req) => {
         if (req.method === "GET") {
             const { data: settings } = await supabase
                 .from("user_settings")
-                .select("display_name, avatar_url, panel_bg_url, page_bg_url, updated_at")
+                .select("display_name, hq_name, avatar_url, panel_bg_url, page_bg_url, updated_at")
                 .eq("user_id", user.id)
                 .maybeSingle();
             return json(settings ?? {
                 display_name: null,
+                hq_name: null,
                 avatar_url: null,
                 panel_bg_url: null,
                 page_bg_url: null,
@@ -68,19 +69,50 @@ serve(async (req) => {
 
         const contentType = req.headers.get("content-type") || "";
 
-        // 3a. POST JSON：更新提督名
+        // 3a. POST JSON：更新名称 / 清除图片
         if (contentType.includes("application/json")) {
             const body = await req.json().catch(() => ({}));
-            const displayName = String(body.display_name ?? "").trim().slice(0, 24);
-            const { error } = await supabase
-                .from("user_settings")
-                .upsert({
-                    user_id: user.id,
-                    display_name: displayName || null,
-                    updated_at: new Date().toISOString()
-                });
+
+            // 清除图片：删除 Storage 文件并置空 URL
+            if (body.clear_field) {
+                const field = String(body.clear_field);
+                if (!ALLOWED_FIELDS.includes(field as typeof ALLOWED_FIELDS[number])) {
+                    return json({ error: `clear_field must be one of: ${ALLOWED_FIELDS.join(", ")}` }, 400);
+                }
+                const { data: objs } = await supabase.storage
+                    .from(BUCKET)
+                    .list(user.id);
+                const targets = (objs || [])
+                    .filter((o) => o.name.startsWith(field + "."))
+                    .map((o) => `${user.id}/${o.name}`);
+                if (targets.length > 0) {
+                    await supabase.storage.from(BUCKET).remove(targets);
+                }
+                const { error } = await supabase
+                    .from("user_settings")
+                    .upsert({
+                        user_id: user.id,
+                        [`${field}_url`]: null,
+                        updated_at: new Date().toISOString()
+                    });
+                if (error) return json({ error: error.message }, 500);
+                return json({ ok: true, cleared: field });
+            }
+
+            // 更新提督名 / 司令部名
+            const patch: Record<string, unknown> = {
+                user_id: user.id,
+                updated_at: new Date().toISOString()
+            };
+            if (body.display_name !== undefined) {
+                patch.display_name = String(body.display_name ?? "").trim().slice(0, 24) || null;
+            }
+            if (body.hq_name !== undefined) {
+                patch.hq_name = String(body.hq_name ?? "").trim().slice(0, 24) || null;
+            }
+            const { error } = await supabase.from("user_settings").upsert(patch);
             if (error) return json({ error: error.message }, 500);
-            return json({ ok: true, display_name: displayName || null });
+            return json({ ok: true });
         }
 
         // 3b. POST multipart：上传图片（同名覆盖）

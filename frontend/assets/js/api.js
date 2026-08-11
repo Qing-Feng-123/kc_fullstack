@@ -94,11 +94,19 @@ const KC_API = {
   },
 
   /**
-   * 更新提督名（保存到后端 user_settings 表）
-   * @param {string} displayName
+   * 更新提督名 / 司令部名（保存到后端 user_settings 表）
+   * @param {{display_name?: string, hq_name?: string}} profile
    */
-  updateDisplayName(displayName) {
-    return _kcPost('userSettings', { display_name: displayName });
+  updateProfile(profile) {
+    return _kcPost('userSettings', profile);
+  },
+
+  /**
+   * 清除图片资产（后端删除 Storage 文件并置空 URL，恢复默认外观）
+   * @param {'avatar'|'panel_bg'|'page_bg'} field
+   */
+  clearAsset(field) {
+    return _kcPost('userSettings', { clear_field: field });
   },
 
   /**

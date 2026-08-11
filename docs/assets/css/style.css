@@ -49,13 +49,13 @@ body.has-page-bg::before { opacity: 1; }
 
 /* ============ 顶部导航栏（全站共用，由 nav.js 注入） ============ */
 .site-nav {
-  max-width: 1180px; margin: 0 auto 24px;
+  max-width: none; margin: -24px -16px 24px;
   display: flex; align-items: center; gap: 8px;
-  border: 1px solid rgba(107,80,19,0.55); border-radius: 3px;
-  background: rgba(221,208,172,0.35);
+  border: 1px solid rgba(107,80,19,0.55); border-left: none; border-right: none; border-radius: 0;
+  background: rgba(221,208,172,0.5);
   backdrop-filter: blur(14px) saturate(1.05);
   -webkit-backdrop-filter: blur(14px) saturate(1.05);
-  padding: 10px 14px;
+  padding: 10px 20px;
   box-shadow: 0 6px 20px rgba(43,33,20,0.28), inset 0 0 0 1px rgba(221,208,172,0.3);
   flex-wrap: wrap;
 }
@@ -500,6 +500,8 @@ body.has-page-bg::before { opacity: 1; }
 .kc-btn:hover { background: rgba(107,80,19,0.15); border-color: var(--brass); }
 .kc-btn.primary { background: var(--brass); color: var(--paper-0); border-color: var(--brass); }
 .kc-btn.primary:hover { background: var(--brass-hi); }
+.kc-btn.danger { color: var(--crimson-hi); border-color: var(--crimson); }
+.kc-btn.danger:hover { background: rgba(140,43,32,0.14); border-color: var(--crimson-hi); }
 .kc-btn:disabled { opacity: 0.5; cursor: default; }
 .kc-hint { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.08em; margin-top: 8px; line-height: 1.8; }
 .kc-status { font-size: 11px; letter-spacing: 0.1em; margin-top: 6px; min-height: 14px; color: var(--ivory-dim); }
